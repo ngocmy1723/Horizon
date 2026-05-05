@@ -15,6 +15,7 @@ class SourceType(str, Enum):
     TELEGRAM = "telegram"
     TWITTER = "twitter"
     LINUXDO = "linuxdo"
+    FIRECRAWL = "firecrawl"
 
 
 class ContentItem(BaseModel):
@@ -159,6 +160,35 @@ class LinuxDoConfig(BaseModel):
     fetch_comments: int = 5         # top replies per topic, 0 to disable
 
 
+class FirecrawlSourceConfig(BaseModel):
+    """A single Firecrawl target (one URL to scrape or crawl)."""
+    name: str
+    url: HttpUrl
+    mode: str = "scrape"            # "scrape" (single page) or "crawl" (multi-page)
+    enabled: bool = True
+    category: Optional[str] = None
+    # Crawl-only options:
+    limit: int = 10                  # max pages when mode == "crawl"
+    max_depth: Optional[int] = None  # crawl depth limit
+    include_paths: List[str] = Field(default_factory=list)
+    exclude_paths: List[str] = Field(default_factory=list)
+    poll_interval_sec: float = 3.0   # how often to poll crawl job
+    poll_timeout_sec: float = 180.0  # give up on crawl after this many seconds
+
+
+class FirecrawlConfig(BaseModel):
+    """Firecrawl source configuration.
+
+    Crawls raw page content via the Firecrawl API. The pipeline still does
+    its own AI summarization downstream — Firecrawl is used purely as a
+    fetcher (no /extract or LLM-summary endpoints).
+    """
+    enabled: bool = True
+    api_key_env: str = "FIRECRAWL_API_KEY"
+    base_url: str = "https://api.firecrawl.dev"
+    sources: List[FirecrawlSourceConfig] = Field(default_factory=list)
+
+
 class SourcesConfig(BaseModel):
     """All sources configuration."""
 
@@ -169,6 +199,7 @@ class SourcesConfig(BaseModel):
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     twitter: Optional[TwitterConfig] = None
     linuxdo: LinuxDoConfig = Field(default_factory=LinuxDoConfig)
+    firecrawl: FirecrawlConfig = Field(default_factory=FirecrawlConfig)
 
 
 class WebhookConfig(BaseModel):

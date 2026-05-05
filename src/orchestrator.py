@@ -19,6 +19,7 @@ from .scrapers.reddit import RedditScraper
 from .scrapers.telegram import TelegramScraper
 from .scrapers.twitter import TwitterScraper
 from .scrapers.linuxdo import LinuxDoScraper
+from .scrapers.firecrawl import FirecrawlScraper
 from .ai.client import create_ai_client
 from .ai.analyzer import ContentAnalyzer
 from .ai.summarizer import DailySummarizer
@@ -267,6 +268,12 @@ class HorizonOrchestrator:
             if self.config.sources.linuxdo.enabled and self.config.sources.linuxdo.feeds:
                 linuxdo_scraper = LinuxDoScraper(self.config.sources.linuxdo, client)
                 tasks.append(self._fetch_with_progress("linux.do", linuxdo_scraper, since))
+
+            # Firecrawl
+            firecrawl_cfg = self.config.sources.firecrawl
+            if firecrawl_cfg.enabled and firecrawl_cfg.sources:
+                firecrawl_scraper = FirecrawlScraper(firecrawl_cfg, client)
+                tasks.append(self._fetch_with_progress("Firecrawl", firecrawl_scraper, since))
 
             # Fetch all concurrently
             results = await asyncio.gather(*tasks, return_exceptions=True)

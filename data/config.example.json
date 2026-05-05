@@ -113,6 +113,29 @@
           "min_likes": 0
         }
       ]
+    },
+    "firecrawl": {
+      "enabled": false,
+      "api_key_env": "FIRECRAWL_API_KEY",
+      "base_url": "https://api.firecrawl.dev",
+      "sources": [
+        {
+          "name": "anthropic-news",
+          "url": "https://www.anthropic.com/news",
+          "mode": "scrape",
+          "enabled": true,
+          "category": "ai-labs"
+        },
+        {
+          "name": "openai-blog-crawl",
+          "url": "https://openai.com/blog",
+          "mode": "crawl",
+          "limit": 5,
+          "max_depth": 2,
+          "enabled": false,
+          "category": "ai-labs"
+        }
+      ]
     }
   },
   "filtering": {

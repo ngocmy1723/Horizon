@@ -4,7 +4,7 @@ Operational notes for AI agents working in this repo.
 
 ## Project
 
-**Horizon** — AI-driven news aggregation pipeline. Fetches from configured sources (RSS, Hacker News, Reddit, Telegram, Twitter/X, GitHub, LinuxDo), deduplicates, AI-scores/filters, enriches with web context + community discussion, summarizes, and delivers via Pages / email / webhooks / MCP.
+**Horizon** — AI-driven news aggregation pipeline. Fetches from configured sources (RSS, Hacker News, Reddit, Telegram, Twitter/X, GitHub, LinuxDo, Firecrawl), deduplicates, AI-scores/filters, enriches with web context + community discussion, summarizes, and delivers via Pages / email / webhooks / MCP.
 
 - Python `>=3.11`, package manager: **uv** (preferred), pip works too.
 - Build backend: hatchling. Source layout: `src/` (packaged as `src`).
@@ -25,7 +25,7 @@ src/
     prompts.py, tokens.py, utils.py
   scrapers/
     base.py, hackernews.py, rss.py, reddit.py, telegram.py,
-    twitter.py, github.py, linuxdo.py
+    twitter.py, github.py, linuxdo.py, firecrawl.py
   services/
     email.py           # SMTP/IMAP newsletter (subscribe/unsubscribe)
     webhook.py         # Feishu/DingTalk/Slack/Discord/custom
