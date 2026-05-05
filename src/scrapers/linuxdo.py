@@ -15,9 +15,12 @@ from ..models import ContentItem, LinuxDoConfig, LinuxDoFeedConfig, SourceType
 
 logger = logging.getLogger(__name__)
 
-MAX_TOPIC_CONCURRENCY = 5
+MAX_TOPIC_CONCURRENCY = 2
+MIN_REQUEST_INTERVAL = 1.0  # seconds between requests (global cooldown)
+MAX_RETRIES_429 = 4
 HTML_TAG_RE = re.compile(r"<[^>]+>")
 WHITESPACE_RE = re.compile(r"\s+")
+RATE_LIMIT_RE = re.compile(r"(?:HTTP\s*)?429|Too Many Requests", re.IGNORECASE)
 
 
 class LinuxDoScraper(BaseScraper):
@@ -28,6 +31,9 @@ class LinuxDoScraper(BaseScraper):
         self.ld_config = config
         self.base_url = config.base_url.rstrip("/")
         self._topic_semaphore = asyncio.Semaphore(MAX_TOPIC_CONCURRENCY)
+        self._request_lock = asyncio.Lock()
+        self._last_request_ts = 0.0
+        self._cooldown_until = 0.0
         self._headers = {
             "Accept": "application/json,text/plain,*/*",
             "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8",
@@ -129,33 +135,82 @@ class LinuxDoScraper(BaseScraper):
         async with self._topic_semaphore:
             return await self._get_json(f"{self.base_url}/t/{topic_id}.json")
 
+    async def _throttle(self) -> None:
+        """Serialize requests with a global min interval + honor active cooldowns."""
+        async with self._request_lock:
+            loop = asyncio.get_event_loop()
+            now = loop.time()
+            wait = max(
+                self._cooldown_until - now,
+                (self._last_request_ts + MIN_REQUEST_INTERVAL) - now,
+            )
+            if wait > 0:
+                await asyncio.sleep(wait)
+            self._last_request_ts = loop.time()
+
+    def _set_cooldown(self, seconds: float) -> None:
+        loop = asyncio.get_event_loop()
+        target = loop.time() + seconds
+        if target > self._cooldown_until:
+            self._cooldown_until = target
+
+    @staticmethod
+    def _retry_after(response: Any, default: int) -> int:
+        try:
+            headers = getattr(response, "headers", None) or {}
+            value = headers.get("Retry-After") if hasattr(headers, "get") else None
+            if value is not None:
+                return max(1, int(value))
+        except (ValueError, TypeError, AttributeError):
+            pass
+        return default
+
     async def _get_json(self, url: str) -> Optional[Any]:
         if self._primp_client is None:
             return None
-        try:
-            response = await asyncio.to_thread(
-                self._primp_client.get, url, headers=self._headers
-            )
-            status = response.status_code
-            if status == 429:
-                retry_after = 5
-                try:
-                    retry_after = int(response.headers.get("Retry-After", 5))
-                except (ValueError, TypeError):
-                    pass
-                logger.warning("linux.do rate limited, retrying after %ds", retry_after)
-                await asyncio.sleep(retry_after)
+
+        for attempt in range(MAX_RETRIES_429 + 1):
+            await self._throttle()
+            try:
                 response = await asyncio.to_thread(
                     self._primp_client.get, url, headers=self._headers
                 )
-                status = response.status_code
+            except Exception as e:
+                # primp raises on 429 instead of returning a response.
+                msg = str(e)
+                if RATE_LIMIT_RE.search(msg) and attempt < MAX_RETRIES_429:
+                    backoff = min(60, 5 * (2 ** attempt))
+                    self._set_cooldown(backoff)
+                    logger.warning(
+                        "linux.do 429 on %s (attempt %d/%d), cooling down %ds",
+                        url, attempt + 1, MAX_RETRIES_429, backoff,
+                    )
+                    continue
+                logger.warning("linux.do request failed for %s: %s", url, e)
+                return None
+
+            status = getattr(response, "status_code", 0)
+            if status == 429:
+                if attempt >= MAX_RETRIES_429:
+                    logger.warning("linux.do giving up on %s after %d 429s", url, attempt)
+                    return None
+                retry_after = self._retry_after(response, default=min(60, 5 * (2 ** attempt)))
+                self._set_cooldown(retry_after)
+                logger.warning(
+                    "linux.do rate limited (attempt %d/%d), cooling down %ds",
+                    attempt + 1, MAX_RETRIES_429, retry_after,
+                )
+                continue
             if status >= 400:
                 logger.warning("linux.do HTTP %d for %s", status, url)
                 return None
-            return response.json()
-        except Exception as e:
-            logger.warning("linux.do request failed for %s: %s", url, e)
-            return None
+            try:
+                return response.json()
+            except Exception as e:
+                logger.warning("linux.do bad JSON for %s: %s", url, e)
+                return None
+
+        return None
 
     def _parse_topic(
         self, topic: dict, detail: Optional[dict], cfg: LinuxDoFeedConfig
