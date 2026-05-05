@@ -172,3 +172,59 @@ Flow:
 **Authentication**: Set `APIFY_TOKEN` in your `.env`. Get a token at [console.apify.com](https://console.apify.com/account/integrations).
 
 **Extracted data**: tweet text, URL, author, publish time, likes, retweets, replies, views, and (optionally) reply-thread text appended under `--- Top Comments ---`.
+
+## linux.do
+
+**File**: `src/scrapers/linuxdo.py`
+
+Uses the public Discourse JSON API exposed by [linux.do](https://linux.do):
+
+- `GET /latest.json` — most recently active topics
+- `GET /top.json?period={daily|weekly|monthly|yearly|all}` — top topics in a period
+- `GET /c/{slug}/{id}.json` — topics within a specific category
+- `GET /t/{topic_id}.json` — topic detail with `post_stream.posts` (OP + replies)
+
+Each configured feed is fetched concurrently. Topics are filtered by `created_at` against the orchestrator time window and by `like_count >= min_likes`. For each surviving topic the detail endpoint is fetched (with bounded concurrency) so the OP body and top replies can be included for AI analysis. Replies are sorted by reaction/score, the top N are kept, HTML is stripped, OP text is truncated at 1500 chars and replies at 500 chars.
+
+**Config** (`sources.linuxdo`):
+
+```json
+{
+  "enabled": true,
+  "base_url": "https://linux.do",
+  "fetch_comments": 5,
+  "feeds": [
+    {
+      "name": "latest",
+      "feed": "latest",
+      "fetch_limit": 25,
+      "min_likes": 0
+    },
+    {
+      "name": "top-daily",
+      "feed": "top",
+      "period": "daily",
+      "fetch_limit": 25,
+      "min_likes": 5
+    },
+    {
+      "name": "develop",
+      "feed": "category",
+      "category_slug": "develop",
+      "category_id": 4,
+      "fetch_limit": 25
+    }
+  ]
+}
+```
+
+- `feed` — `latest`, `top`, or `category`
+- `period` — only used when `feed` is `top`
+- `category_slug` + `category_id` — both required when `feed` is `category` (find the ID at `https://linux.do/categories.json`)
+- `fetch_comments` — number of top replies per topic; set to `0` to skip detail fetches and reply expansion
+- `min_likes` — minimum topic `like_count` to include
+- `base_url` — override if you are aggregating a different self-hosted Discourse instance
+
+**Rate limiting**: Detects HTTP 429 responses, reads the `Retry-After` header, waits, and retries once. A browser-like `User-Agent` and `Referer` are sent because Discourse blocks requests with the default `httpx` UA.
+
+**Extracted data**: title, topic URL, OP author, created time, likes, views, reply count, posts count, category id, tags, OP body, and top replies.

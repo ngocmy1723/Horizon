@@ -18,6 +18,7 @@ from .scrapers.rss import RSSScraper
 from .scrapers.reddit import RedditScraper
 from .scrapers.telegram import TelegramScraper
 from .scrapers.twitter import TwitterScraper
+from .scrapers.linuxdo import LinuxDoScraper
 from .ai.client import create_ai_client
 from .ai.analyzer import ContentAnalyzer
 from .ai.summarizer import DailySummarizer
@@ -261,6 +262,11 @@ class HorizonOrchestrator:
             if self.config.sources.twitter and self.config.sources.twitter.enabled:
                 twitter_scraper = TwitterScraper(self.config.sources.twitter, client)
                 tasks.append(self._fetch_with_progress("Twitter", twitter_scraper, since))
+
+            # linux.do (Discourse)
+            if self.config.sources.linuxdo.enabled and self.config.sources.linuxdo.feeds:
+                linuxdo_scraper = LinuxDoScraper(self.config.sources.linuxdo, client)
+                tasks.append(self._fetch_with_progress("linux.do", linuxdo_scraper, since))
 
             # Fetch all concurrently
             results = await asyncio.gather(*tasks, return_exceptions=True)

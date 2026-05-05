@@ -82,6 +82,37 @@
       "max_replies_per_tweet": 3,
       "max_tweets_to_expand": 10,
       "reply_min_likes": 5
+    },
+    "linuxdo": {
+      "enabled": false,
+      "base_url": "https://linux.do",
+      "fetch_comments": 5,
+      "feeds": [
+        {
+          "name": "latest",
+          "feed": "latest",
+          "enabled": true,
+          "fetch_limit": 25,
+          "min_likes": 0
+        },
+        {
+          "name": "top-daily",
+          "feed": "top",
+          "period": "daily",
+          "enabled": false,
+          "fetch_limit": 25,
+          "min_likes": 5
+        },
+        {
+          "name": "develop",
+          "feed": "category",
+          "category_slug": "develop",
+          "category_id": 4,
+          "enabled": false,
+          "fetch_limit": 25,
+          "min_likes": 0
+        }
+      ]
     }
   },
   "filtering": {

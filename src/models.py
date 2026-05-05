@@ -14,6 +14,7 @@ class SourceType(str, Enum):
     REDDIT = "reddit"
     TELEGRAM = "telegram"
     TWITTER = "twitter"
+    LINUXDO = "linuxdo"
 
 
 class ContentItem(BaseModel):
@@ -138,6 +139,26 @@ class TwitterConfig(BaseModel):
     reply_min_likes: int = 0
 
 
+class LinuxDoFeedConfig(BaseModel):
+    """Configuration for a single linux.do feed (global feed or category)."""
+    name: str                       # display name, also used as ID; e.g. "latest" or "develop"
+    feed: str = "latest"            # latest | top | category
+    category_slug: Optional[str] = None  # required when feed == "category"; e.g. "develop"
+    category_id: Optional[int] = None    # required when feed == "category"
+    period: str = "daily"           # for feed == "top": daily | weekly | monthly | yearly | all
+    enabled: bool = True
+    fetch_limit: int = 25
+    min_likes: int = 0
+
+
+class LinuxDoConfig(BaseModel):
+    """linux.do (Discourse) source configuration."""
+    enabled: bool = True
+    base_url: str = "https://linux.do"
+    feeds: List[LinuxDoFeedConfig] = Field(default_factory=list)
+    fetch_comments: int = 5         # top replies per topic, 0 to disable
+
+
 class SourcesConfig(BaseModel):
     """All sources configuration."""
 
@@ -147,6 +168,7 @@ class SourcesConfig(BaseModel):
     reddit: RedditConfig = Field(default_factory=RedditConfig)
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     twitter: Optional[TwitterConfig] = None
+    linuxdo: LinuxDoConfig = Field(default_factory=LinuxDoConfig)
 
 
 class WebhookConfig(BaseModel):

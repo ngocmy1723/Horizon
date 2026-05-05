@@ -1,0 +1,1456 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Horizon",
+    "languages": ["python", "markdown", "yaml", "dockerfile", "shell", "json"],
+    "frameworks": ["pydantic", "pytest", "mcp"],
+    "description": "AI-powered personal news radar that fetches, deduplicates, scores, filters, and enriches stories from Hacker News, Reddit, Telegram, RSS, Twitter/X, and GitHub Trending. Generates bilingual daily briefings and supports email/webhook delivery.",
+    "analyzedAt": "2026-05-05T08:42:00Z",
+    "gitCommitHash": "a8a675fd7b5534f7bb534410269abf76f0e84a55"
+  },
+  "nodes": [
+    {
+      "id": "file:src/main.py",
+      "type": "file",
+      "name": "main.py",
+      "filePath": "src/main.py",
+      "summary": "CLI entry point for Horizon. Initializes storage, loads configuration, and runs the orchestrator.",
+      "tags": ["entry-point", "cli"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "src/models.py",
+      "summary": "Core data models using Pydantic. Defines ContentItem, AIConfig, source configurations, and main Config class.",
+      "tags": ["data-models", "pydantic"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/orchestrator.py",
+      "type": "file",
+      "name": "orchestrator.py",
+      "filePath": "src/orchestrator.py",
+      "summary": "Main orchestrator coordinating the complete workflow: fetch, deduplicate, analyze, filter, enrich, summarize, and deliver content.",
+      "tags": ["orchestration", "workflow"],
+      "complexity": "complex",
+      "language": "python"
+    },
+    {
+      "id": "file:src/search.py",
+      "type": "file",
+      "name": "search.py",
+      "filePath": "src/search.py",
+      "summary": "DuckDuckGo search integration for finding related stories and background information.",
+      "tags": ["search", "enrichment"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/ai/client.py",
+      "type": "file",
+      "name": "client.py",
+      "filePath": "src/ai/client.py",
+      "summary": "AI client abstraction supporting multiple providers: Anthropic, OpenAI, Gemini, Ali (DashScope), Doubao, and MiniMax.",
+      "tags": ["ai", "multi-provider"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/ai/analyzer.py",
+      "type": "file",
+      "name": "analyzer.py",
+      "filePath": "src/ai/analyzer.py",
+      "summary": "Content analyzer that scores items (0-10), generates summaries, and tags content using AI.",
+      "tags": ["ai", "analysis"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/ai/enricher.py",
+      "type": "file",
+      "name": "enricher.py",
+      "filePath": "src/ai/enricher.py",
+      "summary": "Content enricher that adds background knowledge and related stories using web search.",
+      "tags": ["ai", "enrichment"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/ai/summarizer.py",
+      "type": "file",
+      "name": "summarizer.py",
+      "filePath": "src/ai/summarizer.py",
+      "summary": "Daily summarizer that generates bilingual (English/Chinese) markdown briefings from analyzed content.",
+      "tags": ["ai", "summarization"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/ai/prompts.py",
+      "type": "file",
+      "name": "prompts.py",
+      "filePath": "src/ai/prompts.py",
+      "summary": "System and user prompts for AI operations: analysis, enrichment, summarization, and topic deduplication.",
+      "tags": ["ai", "prompts"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/ai/tokens.py",
+      "type": "file",
+      "name": "tokens.py",
+      "filePath": "src/ai/tokens.py",
+      "summary": "Token usage tracking across AI providers for cost monitoring.",
+      "tags": ["ai", "monitoring"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/ai/utils.py",
+      "type": "file",
+      "name": "utils.py",
+      "filePath": "src/ai/utils.py",
+      "summary": "Utility functions for AI operations, including JSON response parsing.",
+      "tags": ["ai", "utilities"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/scrapers/base.py",
+      "type": "file",
+      "name": "base.py",
+      "filePath": "src/scrapers/base.py",
+      "summary": "Abstract base class defining the scraper interface with async fetch method.",
+      "tags": ["scrapers", "abstract"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/scrapers/github.py",
+      "type": "file",
+      "name": "github.py",
+      "filePath": "src/scrapers/github.py",
+      "summary": "GitHub scraper fetching user events and repository releases via GitHub API.",
+      "tags": ["scrapers", "github"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/scrapers/hackernews.py",
+      "type": "file",
+      "name": "hackernews.py",
+      "filePath": "src/scrapers/hackernews.py",
+      "summary": "Hacker News scraper fetching top stories with score filtering.",
+      "tags": ["scrapers", "hackernews"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/scrapers/reddit.py",
+      "type": "file",
+      "name": "reddit.py",
+      "filePath": "src/scrapers/reddit.py",
+      "summary": "Reddit scraper fetching posts from subreddits and users with comment collection.",
+      "tags": ["scrapers", "reddit"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/scrapers/rss.py",
+      "type": "file",
+      "name": "rss.py",
+      "filePath": "src/scrapers/rss.py",
+      "summary": "RSS feed scraper using feedparser to fetch content from multiple feeds.",
+      "tags": ["scrapers", "rss"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/scrapers/telegram.py",
+      "type": "file",
+      "name": "telegram.py",
+      "filePath": "src/scrapers/telegram.py",
+      "summary": "Telegram channel scraper fetching messages from public channels via web API.",
+      "tags": ["scrapers", "telegram"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/scrapers/twitter.py",
+      "type": "file",
+      "name": "twitter.py",
+      "filePath": "src/scrapers/twitter.py",
+      "summary": "Twitter/X scraper using Apify to fetch tweets and reply discussions.",
+      "tags": ["scrapers", "twitter", "apify"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/services/email.py",
+      "type": "file",
+      "name": "email.py",
+      "filePath": "src/services/email.py",
+      "summary": "Email manager handling IMAP subscription management and SMTP daily summary delivery.",
+      "tags": ["delivery", "email"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/services/webhook.py",
+      "type": "file",
+      "name": "webhook.py",
+      "filePath": "src/services/webhook.py",
+      "summary": "Webhook notifier supporting multiple platforms (Feishu, DingTalk, Slack, Discord) with templated delivery.",
+      "tags": ["delivery", "webhook"],
+      "complexity": "complex",
+      "language": "python"
+    },
+    {
+      "id": "file:src/services/webhook_cli.py",
+      "type": "file",
+      "name": "webhook_cli.py",
+      "filePath": "src/services/webhook_cli.py",
+      "summary": "CLI tool for testing webhook configurations with custom payloads.",
+      "tags": ["delivery", "webhook", "cli"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/storage/manager.py",
+      "type": "file",
+      "name": "manager.py",
+      "filePath": "src/storage/manager.py",
+      "summary": "Storage manager for configuration, seen items, subscribers, and daily summaries persistence.",
+      "tags": ["storage", "persistence"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/setup/wizard.py",
+      "type": "file",
+      "name": "wizard.py",
+      "filePath": "src/setup/wizard.py",
+      "summary": "Interactive setup wizard for generating personalized source configurations based on interests.",
+      "tags": ["setup", "wizard"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/setup/presets.py",
+      "type": "file",
+      "name": "presets.py",
+      "filePath": "src/setup/presets.py",
+      "summary": "Predefined source presets for different interests (AI, security, startups, etc.).",
+      "tags": ["setup", "presets"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/setup/ai_recommend.py",
+      "type": "file",
+      "name": "ai_recommend.py",
+      "filePath": "src/setup/ai_recommend.py",
+      "summary": "AI-powered source recommendation based on user interests.",
+      "tags": ["setup", "ai"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/setup/prompts.py",
+      "type": "file",
+      "name": "prompts.py",
+      "filePath": "src/setup/prompts.py",
+      "summary": "Prompts for setup wizard AI recommendations.",
+      "tags": ["setup", "ai", "prompts"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/setup/tag_aliases.py",
+      "type": "file",
+      "name": "tag_aliases.py",
+      "filePath": "src/setup/tag_aliases.py",
+      "summary": "Tag alias mappings for normalizing AI-generated tags to standard categories.",
+      "tags": ["setup", "normalization"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:src/mcp/server.py",
+      "type": "file",
+      "name": "server.py",
+      "filePath": "src/mcp/server.py",
+      "summary": "MCP (Model Context Protocol) server exposing Horizon functionality to AI assistants.",
+      "tags": ["mcp", "integration"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/mcp/service.py",
+      "type": "file",
+      "name": "service.py",
+      "filePath": "src/mcp/service.py",
+      "summary": "MCP service implementation providing tools for content fetching, analysis, and enrichment.",
+      "tags": ["mcp", "integration"],
+      "complexity": "complex",
+      "language": "python"
+    },
+    {
+      "id": "file:src/mcp/horizon_adapter.py",
+      "type": "file",
+      "name": "horizon_adapter.py",
+      "filePath": "src/mcp/horizon_adapter.py",
+      "summary": "Adapter integrating Horizon's storage and models with MCP service layer.",
+      "tags": ["mcp", "integration", "adapter"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/mcp/run_store.py",
+      "type": "file",
+      "name": "run_store.py",
+      "filePath": "src/mcp/run_store.py",
+      "summary": "MCP-specific storage for tracking run states and caching results.",
+      "tags": ["mcp", "storage"],
+      "complexity": "moderate",
+      "language": "python"
+    },
+    {
+      "id": "file:src/mcp/errors.py",
+      "type": "file",
+      "name": "errors.py",
+      "filePath": "src/mcp/errors.py",
+      "summary": "MCP-specific error definitions and exception handling.",
+      "tags": ["mcp", "errors"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "file:config:pyproject.toml",
+      "type": "config",
+      "name": "pyproject.toml",
+      "filePath": "pyproject.toml",
+      "summary": "Python project configuration with dependencies (httpx, feedparser, anthropic, openai, google-genai, pydantic, etc.) and CLI entry points.",
+      "tags": ["config", "dependencies"],
+      "complexity": "simple",
+      "language": "toml"
+    },
+    {
+      "id": "file:config:.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": ".env.example",
+      "summary": "Environment variable template for API keys (ANTHROPIC_API_KEY, GITHUB_TOKEN, etc.).",
+      "tags": ["config", "environment"],
+      "complexity": "simple",
+      "language": "env"
+    },
+    {
+      "id": "file:config:data/config.example.json",
+      "type": "config",
+      "name": "config.example.json",
+      "filePath": "data/config.example.json",
+      "summary": "Example configuration file showing AI settings, source configurations, filtering rules, and delivery options.",
+      "tags": ["config", "example"],
+      "complexity": "simple",
+      "language": "json"
+    },
+    {
+      "id": "file:config:data/config.json",
+      "type": "config",
+      "name": "config.json",
+      "filePath": "data/config.json",
+      "summary": "User's active configuration file for Horizon.",
+      "tags": ["config", "user"],
+      "complexity": "simple",
+      "language": "json"
+    },
+    {
+      "id": "file:data:data/presets.json",
+      "type": "data",
+      "name": "presets.json",
+      "filePath": "data/presets.json",
+      "summary": "Predefined source presets for different interests and categories.",
+      "tags": ["data", "presets"],
+      "complexity": "simple",
+      "language": "json"
+    },
+    {
+      "id": "file:document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Project documentation with features overview, screenshots, installation instructions, and usage examples.",
+      "tags": ["documentation", "overview"],
+      "complexity": "simple",
+      "language": "markdown"
+    },
+    {
+      "id": "file:document:README_zh.md",
+      "type": "document",
+      "name": "README_zh.md",
+      "filePath": "README_zh.md",
+      "summary": "Chinese version of the project README.",
+      "tags": ["documentation", "overview", "chinese"],
+      "complexity": "simple",
+      "language": "markdown"
+    },
+    {
+      "id": "file:document:docs/configuration.md",
+      "type": "document",
+      "name": "configuration.md",
+      "filePath": "docs/configuration.md",
+      "summary": "Configuration guide explaining all configuration options for AI, sources, filtering, and delivery.",
+      "tags": ["documentation", "configuration"],
+      "complexity": "simple",
+      "language": "markdown"
+    },
+    {
+      "id": "file:document:docs/scoring.md",
+      "type": "document",
+      "name": "scoring.md",
+      "filePath": "docs/scoring.md",
+      "summary": "Documentation on AI scoring system and how importance scores are calculated.",
+      "tags": ["documentation", "scoring"],
+      "complexity": "simple",
+      "language": "markdown"
+    },
+    {
+      "id": "file:document:docs/scrapers.md",
+      "type": "document",
+      "name": "scrapers.md",
+      "filePath": "docs/scrapers.md",
+      "summary": "Documentation for each scraper: GitHub, Hacker News, RSS, Reddit, Telegram, and Twitter.",
+      "tags": ["documentation", "scrapers"],
+      "complexity": "simple",
+      "language": "markdown"
+    },
+    {
+      "id": "file:document:docs/horizon-hub-design.md",
+      "type": "document",
+      "name": "horizon-hub-design.md",
+      "filePath": "docs/horizon-hub-design.md",
+      "summary": "Design document for the community source hub feature.",
+      "tags": ["documentation", "design"],
+      "complexity": "simple",
+      "language": "markdown"
+    },
+    {
+      "id": "file:document:docs/index.md",
+      "type": "document",
+      "name": "index.md",
+      "filePath": "docs/index.md",
+      "summary": "Documentation index page for GitHub Pages site.",
+      "tags": ["documentation", "index"],
+      "complexity": "simple",
+      "language": "markdown"
+    },
+    {
+      "id": "file:document:src/mcp/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "src/mcp/README.md",
+      "summary": "MCP integration documentation explaining how to use Horizon with AI assistants.",
+      "tags": ["documentation", "mcp"],
+      "complexity": "simple",
+      "language": "markdown"
+    },
+    {
+      "id": "file:document:src/mcp/integration.md",
+      "type": "document",
+      "name": "integration.md",
+      "filePath": "src/mcp/integration.md",
+      "summary": "Technical integration guide for MCP protocol implementation.",
+      "tags": ["documentation", "mcp", "integration"],
+      "complexity": "simple",
+      "language": "markdown"
+    },
+    {
+      "id": "file:service:Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "Dockerfile",
+      "summary": "Docker image definition for running Horizon in a containerized environment.",
+      "tags": ["docker", "containerization"],
+      "complexity": "simple",
+      "language": "dockerfile"
+    },
+    {
+      "id": "file:infra:docker-compose.yml",
+      "type": "infra",
+      "name": "docker-compose.yml",
+      "filePath": "docker-compose.yml",
+      "summary": "Docker Compose configuration for running Horizon with its dependencies.",
+      "tags": ["docker", "orchestration"],
+      "complexity": "simple",
+      "language": "yaml"
+    },
+    {
+      "id": "file:infra:.dockerignore",
+      "type": "infra",
+      "name": ".dockerignore",
+      "filePath": ".dockerignore",
+      "summary": "Docker build ignore patterns excluding unnecessary files from the image.",
+      "tags": ["docker", "build"],
+      "complexity": "simple",
+      "language": "dockerignore"
+    },
+    {
+      "id": "file:pipeline:.github/workflows/daily-summary.yml",
+      "type": "pipeline",
+      "name": "daily-summary.yml",
+      "filePath": ".github/workflows/daily-summary.yml",
+      "summary": "GitHub Actions workflow for automated daily summary generation and deployment.",
+      "tags": ["ci-cd", "github-actions"],
+      "complexity": "simple",
+      "language": "yaml"
+    },
+    {
+      "id": "file:pipeline:.github/workflows/deploy-docs.yml",
+      "type": "pipeline",
+      "name": "deploy-docs.yml",
+      "filePath": ".github/workflows/deploy-docs.yml",
+      "summary": "GitHub Actions workflow for deploying documentation to GitHub Pages.",
+      "tags": ["ci-cd", "github-actions", "deployment"],
+      "complexity": "simple",
+      "language": "yaml"
+    },
+    {
+      "id": "file:config:docs/_config.yml",
+      "type": "config",
+      "name": "_config.yml",
+      "filePath": "docs/_config.yml",
+      "summary": "Jekyll configuration for GitHub Pages documentation site.",
+      "tags": ["config", "jekyll"],
+      "complexity": "simple",
+      "language": "yaml"
+    },
+    {
+      "id": "file:script:scripts/daily-run.sh",
+      "type": "script",
+      "name": "daily-run.sh",
+      "filePath": "scripts/daily-run.sh",
+      "summary": "Shell script for running Horizon daily with error handling and logging.",
+      "tags": ["script", "automation"],
+      "complexity": "simple",
+      "language": "shell"
+    },
+    {
+      "id": "file:script:scripts/check_mcp.py",
+      "type": "script",
+      "name": "check_mcp.py",
+      "filePath": "scripts/check_mcp.py",
+      "summary": "Script for checking MCP server status and connectivity.",
+      "tags": ["script", "mcp"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "class:models.py:ContentItem",
+      "type": "class",
+      "name": "ContentItem",
+      "filePath": "src/models.py",
+      "summary": "Unified content item model from any source with AI analysis fields (score, summary, tags).",
+      "tags": ["data-model", "core"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "class:models.py:Config",
+      "type": "class",
+      "name": "Config",
+      "filePath": "src/models.py",
+      "summary": "Main configuration model combining AI, sources, filtering, email, and webhook settings.",
+      "tags": ["data-model", "config"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "class:orchestrator.py:HorizonOrchestrator",
+      "type": "class",
+      "name": "HorizonOrchestrator",
+      "filePath": "src/orchestrator.py",
+      "summary": "Main orchestrator class coordinating the complete content aggregation and analysis workflow.",
+      "tags": ["orchestration", "core"],
+      "complexity": "complex",
+      "language": "python"
+    },
+    {
+      "id": "class:scrapers/base.py:BaseScraper",
+      "type": "class",
+      "name": "BaseScraper",
+      "filePath": "src/scrapers/base.py",
+      "summary": "Abstract base class defining the scraper interface with async fetch method.",
+      "tags": ["scrapers", "abstract"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "class:ai/client.py:AIClient",
+      "type": "class",
+      "name": "AIClient",
+      "filePath": "src/ai/client.py",
+      "summary": "Abstract base class for AI clients defining the complete interface.",
+      "tags": ["ai", "abstract"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "class:ai/client.py:AnthropicClient",
+      "type": "class",
+      "name": "AnthropicClient",
+      "filePath": "src/ai/client.py",
+      "summary": "Client implementation for Anthropic Claude models with token usage tracking.",
+      "tags": ["ai", "anthropic"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "class:ai/client.py:OpenAIClient",
+      "type": "class",
+      "name": "OpenAIClient",
+      "filePath": "src/ai/client.py",
+      "summary": "Client implementation for OpenAI-compatible models (GPT, Doubao, etc.).",
+      "tags": ["ai", "openai"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "class:ai/client.py:GeminiClient",
+      "type": "class",
+      "name": "GeminiClient",
+      "filePath": "src/ai/client.py",
+      "summary": "Client implementation for Google Gemini models.",
+      "tags": ["ai", "gemini"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "class:ai/client.py:MiniMaxClient",
+      "type": "class",
+      "name": "MiniMaxClient",
+      "filePath": "src/ai/client.py",
+      "summary": "Client implementation for MiniMax models via OpenAI-compatible API.",
+      "tags": ["ai", "minimax"],
+      "complexity": "simple",
+      "language": "python"
+    },
+    {
+      "id": "class:ai/client.py:AliClient",
+      "type": "class",
+      "name": "AliClient",
+      "filePath": "src/ai/client.py",
+      "summary": "Client implementation for Alibaba DashScope via OpenAI-compatible API.",
+      "tags": ["ai", "dashscope"],
+      "complexity": "simple",
+      "language": "python"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/main.py",
+      "target": "file:src/orchestrator.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/main.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/main.py",
+      "target": "file:src/storage/manager.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/storage/manager.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/scrapers/github.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/scrapers/hackernews.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/scrapers/rss.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/scrapers/reddit.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/scrapers/telegram.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/scrapers/twitter.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/ai/client.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/ai/analyzer.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/ai/summarizer.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/ai/enricher.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/ai/tokens.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/services/email.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/services/webhook.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/orchestrator.py",
+      "target": "file:src/search.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ai/client.py",
+      "target": "file:src/ai/tokens.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ai/client.py",
+      "target": "file:src/ai/utils.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ai/analyzer.py",
+      "target": "file:src/ai/client.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ai/analyzer.py",
+      "target": "file:src/ai/prompts.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ai/enricher.py",
+      "target": "file:src/ai/client.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ai/enricher.py",
+      "target": "file:src/ai/prompts.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ai/enricher.py",
+      "target": "file:src/search.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ai/summarizer.py",
+      "target": "file:src/ai/client.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ai/summarizer.py",
+      "target": "file:src/ai/prompts.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/scrapers/github.py",
+      "target": "file:src/scrapers/base.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/scrapers/hackernews.py",
+      "target": "file:src/scrapers/base.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/scrapers/reddit.py",
+      "target": "file:src/scrapers/base.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/scrapers/rss.py",
+      "target": "file:src/scrapers/base.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/scrapers/telegram.py",
+      "target": "file:src/scrapers/base.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/scrapers/twitter.py",
+      "target": "file:src/scrapers/base.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/services/email.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/services/webhook.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/setup/wizard.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/setup/wizard.py",
+      "target": "file:src/setup/presets.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/setup/wizard.py",
+      "target": "file:src/setup/ai_recommend.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/setup/ai_recommend.py",
+      "target": "file:src/ai/client.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/setup/presets.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/storage/manager.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/mcp/server.py",
+      "target": "file:src/mcp/service.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/mcp/server.py",
+      "target": "file:src/mcp/horizon_adapter.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/mcp/service.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/mcp/service.py",
+      "target": "file:src/orchestrator.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/mcp/service.py",
+      "target": "file:src/mcp/run_store.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/mcp/horizon_adapter.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/mcp/horizon_adapter.py",
+      "target": "file:src/storage/manager.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/mcp/run_store.py",
+      "target": "file:src/models.py",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "source": "class:scrapers/base.py:BaseScraper",
+      "target": "class:models.py:ContentItem",
+      "type": "uses",
+      "weight": 0.5
+    },
+    {
+      "source": "class:ai/client.py:AnthropicClient",
+      "target": "class:ai/client.py:AIClient",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "class:ai/client.py:OpenAIClient",
+      "target": "class:ai/client.py:AIClient",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "class:ai/client.py:GeminiClient",
+      "target": "class:ai/client.py:AIClient",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "class:ai/client.py:MiniMaxClient",
+      "target": "class:ai/client.py:AIClient",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "class:ai/client.py:AliClient",
+      "target": "class:ai/client.py:AIClient",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "file:src/scrapers/github.py",
+      "target": "class:scrapers/base.py:BaseScraper",
+      "type": "inherits",
+      "weight": 0.9
+    },
+    {
+      "source": "file:src/scrapers/hackernews.py",
+      "target": "class:scrapers/base.py:BaseScraper",
+      "type": "inherits",
+      "weight": 0.9
+    },
+    {
+      "source": "file:src/scrapers/reddit.py",
+      "target": "class:scrapers/base.py:BaseScraper",
+      "type": "inherits",
+      "weight": 0.9
+    },
+    {
+      "source": "file:src/scrapers/rss.py",
+      "target": "class:scrapers/base.py:BaseScraper",
+      "type": "inherits",
+      "weight": 0.9
+    },
+    {
+      "source": "file:src/scrapers/telegram.py",
+      "target": "class:scrapers/base.py:BaseScraper",
+      "type": "inherits",
+      "weight": 0.9
+    },
+    {
+      "source": "file:src/scrapers/twitter.py",
+      "target": "class:scrapers/base.py:BaseScraper",
+      "type": "inherits",
+      "weight": 0.9
+    },
+    {
+      "source": "file:config:pyproject.toml",
+      "target": "file:src/main.py",
+      "type": "configures",
+      "weight": 0.6
+    },
+    {
+      "source": "file:config:pyproject.toml",
+      "target": "file:src/mcp/server.py",
+      "type": "configures",
+      "weight": 0.6
+    },
+    {
+      "source": "file:config:pyproject.toml",
+      "target": "file:src/setup/wizard.py",
+      "type": "configures",
+      "weight": 0.6
+    },
+    {
+      "source": "file:config:pyproject.toml",
+      "target": "file:src/services/webhook_cli.py",
+      "type": "configures",
+      "weight": 0.6
+    },
+    {
+      "source": "file:config:data/config.json",
+      "target": "file:src/main.py",
+      "type": "configures",
+      "weight": 0.6
+    },
+    {
+      "source": "file:config:data/config.json",
+      "target": "file:src/orchestrator.py",
+      "type": "configures",
+      "weight": 0.6
+    },
+    {
+      "source": "file:config:.env.example",
+      "target": "file:src/ai/client.py",
+      "type": "configures",
+      "weight": 0.6
+    },
+    {
+      "source": "file:config:data/config.example.json",
+      "target": "file:src/setup/wizard.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:README.md",
+      "target": "file:src/main.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:docs/configuration.md",
+      "target": "file:config:data/config.example.json",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:docs/scrapers.md",
+      "target": "file:src/scrapers/github.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:docs/scrapers.md",
+      "target": "file:src/scrapers/hackernews.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:docs/scrapers.md",
+      "target": "file:src/scrapers/reddit.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:docs/scrapers.md",
+      "target": "file:src/scrapers/rss.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:docs/scrapers.md",
+      "target": "file:src/scrapers/telegram.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:docs/scrapers.md",
+      "target": "file:src/scrapers/twitter.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:src/mcp/README.md",
+      "target": "file:src/mcp/server.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:document:src/mcp/README.md",
+      "target": "file:src/mcp/service.py",
+      "type": "documents",
+      "weight": 0.5
+    },
+    {
+      "source": "file:service:Dockerfile",
+      "target": "file:infra:docker-compose.yml",
+      "type": "deploys",
+      "weight": 0.7
+    },
+    {
+      "source": "file:pipeline:.github/workflows/daily-summary.yml",
+      "target": "file:src/main.py",
+      "type": "triggers",
+      "weight": 0.6
+    },
+    {
+      "source": "file:pipeline:.github/workflows/deploy-docs.yml",
+      "target": "file:document:docs/index.md",
+      "type": "deploys",
+      "weight": 0.7
+    },
+    {
+      "source": "file:script:scripts/daily-run.sh",
+      "target": "file:src/main.py",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:script:scripts/check_mcp.py",
+      "target": "file:src/mcp/server.py",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:config:docs/_config.yml",
+      "target": "file:document:docs/index.md",
+      "type": "configures",
+      "weight": 0.6
+    },
+    {
+      "source": "file:data:data/presets.json",
+      "target": "file:src/setup/presets.py",
+      "type": "reads_from",
+      "weight": 0.5
+    },
+    {
+      "source": "file:data:data/presets.json",
+      "target": "file:src/setup/wizard.py",
+      "type": "reads_from",
+      "weight": 0.5
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:entry-point",
+      "name": "Entry Point",
+      "description": "Application entry points and CLI interfaces for running Horizon and its tools.",
+      "nodeIds": [
+        "file:src/main.py",
+        "file:src/services/webhook_cli.py"
+      ]
+    },
+    {
+      "id": "layer:orchestration",
+      "name": "Orchestration",
+      "description": "Central workflow coordinator that manages the complete pipeline: fetch, deduplicate, analyze, filter, enrich, summarize, and deliver content.",
+      "nodeIds": [
+        "file:src/orchestrator.py",
+        "class:orchestrator.py:HorizonOrchestrator"
+      ]
+    },
+    {
+      "id": "layer:data-models",
+      "name": "Data Models",
+      "description": "Core data structures and configuration models using Pydantic for type safety and validation.",
+      "nodeIds": [
+        "file:src/models.py",
+        "class:models.py:ContentItem",
+        "class:models.py:Config"
+      ]
+    },
+    {
+      "id": "layer:ai",
+      "name": "AI Layer",
+      "description": "AI client abstraction supporting multiple providers (Anthropic, OpenAI, Gemini, etc.) and AI operations for analysis, enrichment, and summarization.",
+      "nodeIds": [
+        "file:src/ai/client.py",
+        "file:src/ai/analyzer.py",
+        "file:src/ai/enricher.py",
+        "file:src/ai/summarizer.py",
+        "file:src/ai/prompts.py",
+        "file:src/ai/tokens.py",
+        "file:src/ai/utils.py",
+        "class:ai/client.py:AIClient",
+        "class:ai/client.py:AnthropicClient",
+        "class:ai/client.py:OpenAIClient",
+        "class:ai/client.py:GeminiClient",
+        "class:ai/client.py:MiniMaxClient",
+        "class:ai/client.py:AliClient"
+      ]
+    },
+    {
+      "id": "layer:scrapers",
+      "name": "Content Scrapers",
+      "description": "Source-specific scrapers implementing the BaseScraper interface to fetch content from GitHub, Hacker News, RSS, Reddit, Telegram, and Twitter.",
+      "nodeIds": [
+        "file:src/scrapers/base.py",
+        "file:src/scrapers/github.py",
+        "file:src/scrapers/hackernews.py",
+        "file:src/scrapers/reddit.py",
+        "file:src/scrapers/rss.py",
+        "file:src/scrapers/telegram.py",
+        "file:src/scrapers/twitter.py",
+        "class:scrapers/base.py:BaseScraper"
+      ]
+    },
+    {
+      "id": "layer:storage",
+      "name": "Storage",
+      "description": "Persistence layer for configuration, seen items tracking, subscriber management, and daily summaries.",
+      "nodeIds": [
+        "file:src/storage/manager.py"
+      ]
+    },
+    {
+      "id": "layer:delivery",
+      "name": "Delivery",
+      "description": "Output delivery mechanisms including email (SMTP/IMAP) and webhook notifications for multiple platforms (Feishu, DingTalk, Slack, Discord).",
+      "nodeIds": [
+        "file:src/services/email.py",
+        "file:src/services/webhook.py",
+        "file:src/services/webhook_cli.py"
+      ]
+    },
+    {
+      "id": "layer:setup",
+      "name": "Setup & Configuration",
+      "description": "Interactive setup wizard, predefined source presets, and AI-powered configuration recommendations.",
+      "nodeIds": [
+        "file:src/setup/wizard.py",
+        "file:src/setup/presets.py",
+        "file:src/setup/ai_recommend.py",
+        "file:src/setup/prompts.py",
+        "file:src/setup/tag_aliases.py"
+      ]
+    },
+    {
+      "id": "layer:mcp",
+      "name": "MCP Integration",
+      "description": "Model Context Protocol server and service layer exposing Horizon functionality to AI assistants.",
+      "nodeIds": [
+        "file:src/mcp/server.py",
+        "file:src/mcp/service.py",
+        "file:src/mcp/horizon_adapter.py",
+        "file:src/mcp/run_store.py",
+        "file:src/mcp/errors.py"
+      ]
+    },
+    {
+      "id": "layer:search",
+      "name": "Search",
+      "description": "DuckDuckGo search integration for finding related stories and background information during content enrichment.",
+      "nodeIds": [
+        "file:src/search.py"
+      ]
+    },
+    {
+      "id": "layer:configuration",
+      "name": "Configuration",
+      "description": "Project configuration files including dependencies, environment variables, and user settings.",
+      "nodeIds": [
+        "file:config:pyproject.toml",
+        "file:config:.env.example",
+        "file:config:data/config.example.json",
+        "file:config:data/config.json",
+        "file:config:docs/_config.yml",
+        "file:config:.gitignore"
+      ]
+    },
+    {
+      "id": "layer:documentation",
+      "name": "Documentation",
+      "description": "Project documentation including README, configuration guides, scraper documentation, and MCP integration guides.",
+      "nodeIds": [
+        "file:document:README.md",
+        "file:document:README_zh.md",
+        "file:document:docs/configuration.md",
+        "file:document:docs/scoring.md",
+        "file:document:docs/scrapers.md",
+        "file:document:docs/horizon-hub-design.md",
+        "file:document:docs/index.md",
+        "file:document:src/mcp/README.md",
+        "file:document:src/mcp/integration.md"
+      ]
+    },
+    {
+      "id": "layer:infrastructure",
+      "name": "Infrastructure",
+      "description": "Containerization and deployment infrastructure including Docker, Docker Compose, and CI/CD workflows.",
+      "nodeIds": [
+        "file:service:Dockerfile",
+        "file:infra:docker-compose.yml",
+        "file:infra:.dockerignore",
+        "file:pipeline:.github/workflows/daily-summary.yml",
+        "file:pipeline:.github/workflows/deploy-docs.yml"
+      ]
+    },
+    {
+      "id": "layer:scripts",
+      "name": "Automation Scripts",
+      "description": "Shell and Python scripts for automation including daily runs and MCP server health checks.",
+      "nodeIds": [
+        "file:script:scripts/daily-run.sh",
+        "file:script:scripts/check_mcp.py"
+      ]
+    },
+    {
+      "id": "layer:data",
+      "name": "Data",
+      "description": "Static data files including predefined source presets and feed configurations.",
+      "nodeIds": [
+        "file:data:data/presets.json",
+        "file:data:docs/feed-en.xml",
+        "file:data:docs/feed-zh.xml"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Getting Started with Horizon",
+      "description": "Begin with the README to understand what Horizon does: an AI-powered personal news radar that fetches, deduplicates, scores, and enriches stories from multiple sources.",
+      "nodeIds": ["file:document:README.md"]
+    },
+    {
+      "order": 2,
+      "title": "Configuration Setup",
+      "description": "Horizon requires configuration for AI providers and data sources. Start with the example configuration and environment variables template.",
+      "nodeIds": ["file:config:.env.example", "file:config:data/config.example.json"]
+    },
+    {
+      "order": 3,
+      "title": "Interactive Setup Wizard",
+      "description": "Use the setup wizard to generate a personalized configuration based on your interests. It offers AI-powered source recommendations and predefined presets.",
+      "nodeIds": ["file:src/setup/wizard.py", "file:src/setup/presets.py", "file:src/setup/ai_recommend.py"]
+    },
+    {
+      "order": 4,
+      "title": "Application Entry Point",
+      "description": "The main CLI entry point initializes storage, loads configuration, and launches the orchestrator.",
+      "nodeIds": ["file:src/main.py"]
+    },
+    {
+      "order": 5,
+      "title": "Core Data Models",
+      "description": "Understand the data structures: ContentItem represents unified content from any source, and Config holds all application settings.",
+      "nodeIds": ["file:src/models.py", "class:models.py:ContentItem", "class:models.py:Config"]
+    },
+    {
+      "order": 6,
+      "title": "The Orchestrator - Central Workflow",
+      "description": "The HorizonOrchestrator coordinates the complete pipeline: fetching from sources, deduplicating, AI analysis, filtering, enrichment, summarization, and delivery.",
+      "nodeIds": ["file:src/orchestrator.py", "class:orchestrator.py:HorizonOrchestrator"]
+    },
+    {
+      "order": 7,
+      "title": "Content Scrapers",
+      "description": "Each source has a scraper implementing the BaseScraper interface. They fetch content from GitHub, Hacker News, RSS, Reddit, Telegram, and Twitter.",
+      "nodeIds": ["file:src/scrapers/base.py", "class:scrapers/base.py:BaseScraper", "file:src/scrapers/github.py", "file:src/scrapers/hackernews.py", "file:src/scrapers/reddit.py", "file:src/scrapers/rss.py", "file:src/scrapers/telegram.py", "file:src/scrapers/twitter.py"]
+    },
+    {
+      "order": 8,
+      "title": "AI Client Abstraction",
+      "description": "The AI layer supports multiple providers (Anthropic, OpenAI, Gemini, MiniMax, Ali/DashScope, Doubao) through a unified client interface.",
+      "nodeIds": ["file:src/ai/client.py", "class:ai/client.py:AIClient", "class:ai/client.py:AnthropicClient", "class:ai/client.py:OpenAIClient", "class:ai/client.py:GeminiClient"]
+    },
+    {
+      "order": 9,
+      "title": "AI Analysis Operations",
+      "description": "Three main AI operations: ContentAnalyzer scores items and generates summaries, ContentEnricher adds background knowledge via web search, and DailySummarizer creates briefings.",
+      "nodeIds": ["file:src/ai/analyzer.py", "file:src/ai/enricher.py", "file:src/ai/summarizer.py", "file:src/ai/prompts.py"]
+    },
+    {
+      "order": 10,
+      "title": "Search Integration",
+      "description": "DuckDuckGo search is used during enrichment to find related stories and background information for unfamiliar concepts.",
+      "nodeIds": ["file:src/search.py"]
+    },
+    {
+      "order": 11,
+      "title": "Storage Layer",
+      "description": "The StorageManager persists configuration, tracks seen items to avoid duplicates, manages email subscribers, and saves daily summaries.",
+      "nodeIds": ["file:src/storage/manager.py"]
+    },
+    {
+      "order": 12,
+      "title": "Delivery Mechanisms",
+      "description": "Horizon can deliver results via email (with IMAP subscription management) or webhooks to platforms like Feishu, DingTalk, Slack, and Discord.",
+      "nodeIds": ["file:src/services/email.py", "file:src/services/webhook.py"]
+    },
+    {
+      "order": 13,
+      "title": "MCP Integration",
+      "description": "Horizon exposes its functionality through the Model Context Protocol, allowing AI assistants to directly access content fetching and analysis capabilities.",
+      "nodeIds": ["file:src/mcp/server.py", "file:src/mcp/service.py", "file:src/mcp/horizon_adapter.py", "file:document:src/mcp/README.md"]
+    },
+    {
+      "order": 14,
+      "title": "Deployment & Infrastructure",
+      "description": "Horizon can be containerized with Docker and automated via GitHub Actions workflows for daily runs and documentation deployment.",
+      "nodeIds": ["file:service:Dockerfile", "file:infra:docker-compose.yml", "file:pipeline:.github/workflows/daily-summary.yml", "file:script:scripts/daily-run.sh"]
+    },
+    {
+      "order": 15,
+      "title": "Configuration Documentation",
+      "description": "Detailed documentation on all configuration options for AI settings, sources, filtering rules, and delivery channels.",
+      "nodeIds": ["file:document:docs/configuration.md"]
+    },
+    {
+      "order": 16,
+      "title": "Scraper-Specific Documentation",
+      "description": "Learn about each scraper's specific configuration options and capabilities.",
+      "nodeIds": ["file:document:docs/scrapers.md"]
+    }
+  ]
+}
