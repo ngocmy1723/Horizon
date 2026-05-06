@@ -9,7 +9,8 @@
     "max_tokens": 8192,
     "throttle_sec": 0.0,
     "languages": [
-      "en"
+      "en",
+      "vi"
     ]
   },
   "sources": {
@@ -41,6 +42,29 @@
         "owner": "triton-lang",
         "repo": "triton",
         "enabled": true
+      }
+    ],
+    "gitee": [
+      {
+        "type": "repo_releases",
+        "username": null,
+        "owner": "mindspore",
+        "repo": "mindspore",
+        "enabled": true
+      },
+      {
+        "type": "repo_releases",
+        "username": null,
+        "owner": "paddlepaddle",
+        "repo": "Paddle",
+        "enabled": true
+      },
+      {
+        "type": "user_events",
+        "username": "oschina",
+        "owner": null,
+        "repo": null,
+        "enabled": false
       }
     ],
     "hackernews": {
@@ -499,8 +523,13 @@
           "category": "ai-labs",
           "limit": 5,
           "max_depth": 2,
-          "include_paths": ["/blog/"],
-          "exclude_paths": ["/careers", "/pricing"],
+          "include_paths": [
+            "/blog/"
+          ],
+          "exclude_paths": [
+            "/careers",
+            "/pricing"
+          ],
           "poll_interval_sec": 3.0,
           "poll_timeout_sec": 180.0
         }

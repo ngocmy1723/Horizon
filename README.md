@@ -21,9 +21,9 @@
 ![MiniMax](https://img.shields.io/badge/MiniMax-FF6F00?style=flat-square)
 ![OpenClaw](https://img.shields.io/badge/OpenClaw-C83232?style=flat-square)
 
-📡 Your own AI-powered news radar. Generates daily briefings in English & Chinese. | 构建你专属的 AI 新闻雷达
+📡 Your own AI-powered news radar. Generates daily briefings in English, Chinese & Vietnamese. | 构建你专属的 AI 新闻雷达
 
-[📖 Live Demo](https://thysrael.github.io/Horizon/) · [📋 Configuration Guide](https://thysrael.github.io/Horizon/configuration) · [简体中文](README_zh.md)
+[📖 Live Demo](https://thysrael.github.io/Horizon/) · [📋 Configuration Guide](https://thysrael.github.io/Horizon/configuration) · [简体中文](README_zh.md) · [Tiếng Việt](README_vn.md)
 
 </div>
 
@@ -65,18 +65,18 @@
 
 ## Why Horizon?
 
-Good news is scattered; bad news is endless. Horizon gives you a personal first pass over Hacker News, Reddit, Telegram, RSS, and GitHub: it fetches, deduplicates, scores, filters, and enriches stories with background context and community discussion.
+Good news is scattered; bad news is endless. Horizon gives you a personal first pass over Hacker News, Reddit, Telegram, RSS, GitHub, Gitee, Twitter/X, LinuxDo, OneHack, Indie Hackers, and any URL crawled via Firecrawl: it fetches, deduplicates, scores, filters, and enriches stories with background context and community discussion.
 
 But Horizon is not just another summarizer. AI is great at reducing noise, but news still needs human taste: the sources you trust, the comments that change how you read a story, and the hidden gems only people can share. Horizon keeps that human layer in the loop with customizable sources, thresholds, models, languages, delivery channels, comment summaries, and a community source hub.
 
 ## Features
 
-- **📡 Watch Your Own Sources** — Track Hacker News, RSS, Reddit, Telegram, Twitter/X, and GitHub releases or user activity in one pipeline
+- **📡 Watch Your Own Sources** — Track Hacker News, RSS, Reddit, Telegram, Twitter/X, GitHub & Gitee releases or user activity, LinuxDo, OneHack, Indie Hackers, and any URL via Firecrawl in one pipeline
 - **🤖 Turn Noise Into a Reading List** — Score each item from 0-10 with Claude, GPT, Gemini, DeepSeek, Doubao, MiniMax, or any OpenAI-compatible API
 - **🔗 Merge Repeated Stories** — Deduplicate the same story across platforms before it reaches your briefing
 - **🔍 Understand the Background** — Add web-researched context for unfamiliar concepts, companies, projects, and technical terms
 - **💬 Read the Conversation** — Collect and summarize community comments from Hacker News, Reddit, and other supported sources
-- **🌐 Publish in Two Languages** — Generate English and Chinese daily briefings from the same source set
+- **🌐 Publish in Multiple Languages** — Generate English, Chinese, and Vietnamese daily briefings from the same source set
 - **📝 Ship a Daily Site** — Publish generated Markdown as a GitHub Pages daily briefing site
 - **📧 Deliver by Email** — Run a self-hosted SMTP/IMAP newsletter with automatic subscribe and unsubscribe handling
 - **🔔 Push to Chat or Automations** — Send templated results to Feishu/Lark, DingTalk, Slack, Discord, or custom webhook endpoints
@@ -114,6 +114,10 @@ flowchart LR
         telegram["✈️ Telegram"]
         twitter["🐦 Twitter / X"]
         github["🐙 GitHub"]
+        gitee["🦊 Gitee"]
+        discourse["🗣️ LinuxDo / OneHack"]
+        ih["🚀 Indie Hackers"]
+        firecrawl["🔥 Firecrawl"]
     end
 
     fetch["📥 Fetch"]
@@ -137,6 +141,10 @@ flowchart LR
     telegram --> fetch
     twitter --> fetch
     github --> fetch
+    gitee --> fetch
+    discourse --> fetch
+    ih --> fetch
+    firecrawl --> fetch
 
     fetch --> dedup --> score --> enrich --> summary
     config --> score
@@ -149,7 +157,7 @@ flowchart LR
     summary --> mcp
 
     class config config
-    class rss,hn,reddit,telegram,twitter,github source
+    class rss,hn,reddit,telegram,twitter,github,gitee,discourse,ih,firecrawl source
     class fetch,dedup,score,enrich,summary process
     class site,email,webhook,mcp output
 ```
@@ -271,8 +279,13 @@ Horizon works great as a **GitHub Actions** cron job. See [`.github/workflows/da
 | **RSS / Atom** | Any RSS or Atom feed | — |
 | **Reddit** | Subreddits + user posts | Yes (top N comments) |
 | **Telegram** | Public channel messages | — |
-| **Twitter / X** | Tweets from specific users | Yes (top N replies) |
+| **Twitter / X** | Tweets from specific users (via Apify) | Yes (top N replies) |
 | **GitHub** | User events & repo releases | — |
+| **Gitee** | User events & repo releases | — |
+| **LinuxDo** | Discourse feeds (latest / top / category) | Yes (top N replies) |
+| **OneHack** | onehack.st Discourse feeds | Yes (top N replies) |
+| **Indie Hackers** | Latest / featured posts | — |
+| **Firecrawl** | Any URL — single page or crawl | — |
 
 ## Where Your Briefing Goes
 
@@ -298,11 +311,11 @@ For setup details, see the [Configuration Guide](docs/configuration.md). For MCP
 
 ## Project Status
 
-Horizon already supports the full daily briefing loop: multi-source collection, AI scoring, deduplication, enrichment, comment summaries, bilingual generation, GitHub Pages publishing, email delivery, webhook delivery, Docker deployment, MCP integration, and the setup wizard.
+Horizon already supports the full daily briefing loop: multi-source collection, AI scoring, deduplication, enrichment, comment summaries, multilingual generation (EN / ZH / VI), GitHub Pages publishing, email delivery, webhook delivery, Docker deployment, MCP integration, and the setup wizard.
 
 Planned improvements:
 
-- More source types, such as Twitter/X and Discord
+- More source types, such as Discord and Mastodon
 - Custom scoring prompts per source
 - Publish releases on GitHub
 - Publish the package to PyPI for `pip install`

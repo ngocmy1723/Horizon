@@ -33,6 +33,14 @@
         "enabled": true
       }
     ],
+    "gitee": [
+      {
+        "type": "repo_releases",
+        "owner": "mindspore",
+        "repo": "mindspore",
+        "enabled": false
+      }
+    ],
     "hackernews": {
       "enabled": true,
       "fetch_top_stories": 20,

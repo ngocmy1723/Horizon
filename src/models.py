@@ -9,6 +9,7 @@ from pydantic import BaseModel, HttpUrl, Field
 class SourceType(str, Enum):
     """Supported information source types."""
     GITHUB = "github"
+    GITEE = "gitee"
     HACKERNEWS = "hackernews"
     RSS = "rss"
     REDDIT = "reddit"
@@ -65,6 +66,16 @@ class AIConfig(BaseModel):
 
 class GitHubSourceConfig(BaseModel):
     """GitHub source configuration."""
+
+    type: str  # "user_events", "repo_releases", etc.
+    username: Optional[str] = None
+    owner: Optional[str] = None
+    repo: Optional[str] = None
+    enabled: bool = True
+
+
+class GiteeSourceConfig(BaseModel):
+    """Gitee source configuration."""
 
     type: str  # "user_events", "repo_releases", etc.
     username: Optional[str] = None
@@ -218,6 +229,7 @@ class SourcesConfig(BaseModel):
     """All sources configuration."""
 
     github: List[GitHubSourceConfig] = Field(default_factory=list)
+    gitee: List[GiteeSourceConfig] = Field(default_factory=list)
     hackernews: HackerNewsConfig = Field(default_factory=HackerNewsConfig)
     rss: List[RSSSourceConfig] = Field(default_factory=list)
     reddit: RedditConfig = Field(default_factory=RedditConfig)

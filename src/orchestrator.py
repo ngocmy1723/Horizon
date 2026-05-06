@@ -13,6 +13,7 @@ from .storage.manager import StorageManager
 from .services.email import EmailManager
 from .services.webhook import WebhookNotifier
 from .scrapers.github import GitHubScraper
+from .scrapers.gitee import GiteeScraper
 from .scrapers.hackernews import HackerNewsScraper
 from .scrapers.rss import RSSScraper
 from .scrapers.reddit import RedditScraper
@@ -240,6 +241,11 @@ class HorizonOrchestrator:
             if self.config.sources.github:
                 github_scraper = GitHubScraper(self.config.sources.github, client)
                 tasks.append(self._fetch_with_progress("GitHub", github_scraper, since))
+
+            # Gitee sources
+            if self.config.sources.gitee:
+                gitee_scraper = GiteeScraper(self.config.sources.gitee, client)
+                tasks.append(self._fetch_with_progress("Gitee", gitee_scraper, since))
 
             # Hacker News
             if self.config.sources.hackernews.enabled:
