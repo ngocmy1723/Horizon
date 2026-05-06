@@ -512,6 +512,28 @@
       "fetch_limit": 20,
       "min_upvotes": 10,
       "fetch_post_body": true
+    },
+    "onehack": {
+      "enabled": true,
+      "base_url": "https://onehack.st",
+      "fetch_comments": 5,
+      "feeds": [
+        {
+          "name": "latest",
+          "feed": "latest",
+          "enabled": true,
+          "fetch_limit": 25,
+          "min_likes": 0
+        },
+        {
+          "name": "top-daily",
+          "feed": "top",
+          "period": "daily",
+          "enabled": true,
+          "fetch_limit": 25,
+          "min_likes": 5
+        }
+      ]
     }
   },
   "filtering": {

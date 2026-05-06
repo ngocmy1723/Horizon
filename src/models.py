@@ -17,6 +17,7 @@ class SourceType(str, Enum):
     LINUXDO = "linuxdo"
     FIRECRAWL = "firecrawl"
     INDIEHACKERS = "indiehackers"
+    ONEHACK = "onehack"
 
 
 class ContentItem(BaseModel):
@@ -161,6 +162,15 @@ class LinuxDoConfig(BaseModel):
     fetch_comments: int = 5         # top replies per topic, 0 to disable
 
 
+class OneHackConfig(LinuxDoConfig):
+    """onehack.st (Discourse) source configuration.
+
+    Same shape as ``LinuxDoConfig`` since onehack.st runs Discourse — only
+    the default ``base_url`` differs. Reuses ``LinuxDoFeedConfig`` for feeds.
+    """
+    base_url: str = "https://onehack.st"
+
+
 class FirecrawlSourceConfig(BaseModel):
     """A single Firecrawl target (one URL to scrape or crawl)."""
     name: str
@@ -216,6 +226,7 @@ class SourcesConfig(BaseModel):
     linuxdo: LinuxDoConfig = Field(default_factory=LinuxDoConfig)
     firecrawl: FirecrawlConfig = Field(default_factory=FirecrawlConfig)
     indiehackers: IndieHackersConfig = Field(default_factory=IndieHackersConfig)
+    onehack: OneHackConfig = Field(default_factory=lambda: OneHackConfig(enabled=False))
 
 
 class WebhookConfig(BaseModel):

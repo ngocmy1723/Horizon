@@ -24,7 +24,15 @@ RATE_LIMIT_RE = re.compile(r"(?:HTTP\s*)?429|Too Many Requests", re.IGNORECASE)
 
 
 class LinuxDoScraper(BaseScraper):
-    """Scraper for linux.do (a Discourse-based forum)."""
+    """Scraper for linux.do (a Discourse-based forum).
+
+    Subclasses can target other Discourse instances by overriding the
+    ``SOURCE_TYPE``, ``SOURCE_ID_PREFIX``, and ``LOG_NAME`` class attributes.
+    """
+
+    SOURCE_TYPE: SourceType = SourceType.LINUXDO
+    SOURCE_ID_PREFIX: str = "linuxdo"
+    LOG_NAME: str = "linux.do"
 
     def __init__(self, config: LinuxDoConfig, http_client: httpx.AsyncClient):
         super().__init__(config.model_dump(), http_client)
@@ -76,7 +84,7 @@ class LinuxDoScraper(BaseScraper):
         items: List[ContentItem] = []
         for r in results:
             if isinstance(r, Exception):
-                logger.warning("Error fetching linux.do feed: %s", r)
+                logger.warning("Error fetching %s feed: %s", self.LOG_NAME, r)
             elif isinstance(r, list):
                 items.extend(r)
         return items
@@ -84,7 +92,7 @@ class LinuxDoScraper(BaseScraper):
     async def _fetch_feed(self, cfg: LinuxDoFeedConfig, since: datetime) -> List[ContentItem]:
         url = self._feed_url(cfg)
         if not url:
-            logger.warning("linux.do feed %s has no resolvable URL", cfg.name)
+            logger.warning("%s feed %s has no resolvable URL", self.LOG_NAME, cfg.name)
             return []
 
         data = await self._get_json(url)
@@ -182,32 +190,32 @@ class LinuxDoScraper(BaseScraper):
                     backoff = min(60, 5 * (2 ** attempt))
                     self._set_cooldown(backoff)
                     logger.warning(
-                        "linux.do 429 on %s (attempt %d/%d), cooling down %ds",
-                        url, attempt + 1, MAX_RETRIES_429, backoff,
+                        "%s 429 on %s (attempt %d/%d), cooling down %ds",
+                        self.LOG_NAME, url, attempt + 1, MAX_RETRIES_429, backoff,
                     )
                     continue
-                logger.warning("linux.do request failed for %s: %s", url, e)
+                logger.warning("%s request failed for %s: %s", self.LOG_NAME, url, e)
                 return None
 
             status = getattr(response, "status_code", 0)
             if status == 429:
                 if attempt >= MAX_RETRIES_429:
-                    logger.warning("linux.do giving up on %s after %d 429s", url, attempt)
+                    logger.warning("%s giving up on %s after %d 429s", self.LOG_NAME, url, attempt)
                     return None
                 retry_after = self._retry_after(response, default=min(60, 5 * (2 ** attempt)))
                 self._set_cooldown(retry_after)
                 logger.warning(
-                    "linux.do rate limited (attempt %d/%d), cooling down %ds",
-                    attempt + 1, MAX_RETRIES_429, retry_after,
+                    "%s rate limited (attempt %d/%d), cooling down %ds",
+                    self.LOG_NAME, attempt + 1, MAX_RETRIES_429, retry_after,
                 )
                 continue
             if status >= 400:
-                logger.warning("linux.do HTTP %d for %s", status, url)
+                logger.warning("%s HTTP %d for %s", self.LOG_NAME, status, url)
                 return None
             try:
                 return response.json()
             except Exception as e:
-                logger.warning("linux.do bad JSON for %s: %s", url, e)
+                logger.warning("%s bad JSON for %s: %s", self.LOG_NAME, url, e)
                 return None
 
         return None
@@ -271,8 +279,8 @@ class LinuxDoScraper(BaseScraper):
         tags = topic.get("tags") or []
 
         return ContentItem(
-            id=self._generate_id("linuxdo", "topic", str(topic_id)),
-            source_type=SourceType.LINUXDO,
+            id=self._generate_id(self.SOURCE_ID_PREFIX, "topic", str(topic_id)),
+            source_type=self.SOURCE_TYPE,
             title=title,
             url=url,
             content=content,

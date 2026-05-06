@@ -19,6 +19,7 @@ from .scrapers.reddit import RedditScraper
 from .scrapers.telegram import TelegramScraper
 from .scrapers.twitter import TwitterScraper
 from .scrapers.linuxdo import LinuxDoScraper
+from .scrapers.onehack import OneHackScraper
 from .scrapers.firecrawl import FirecrawlScraper
 from .scrapers.indiehackers import IndieHackersScraper
 from .ai.client import create_ai_client
@@ -269,6 +270,11 @@ class HorizonOrchestrator:
             if self.config.sources.linuxdo.enabled and self.config.sources.linuxdo.feeds:
                 linuxdo_scraper = LinuxDoScraper(self.config.sources.linuxdo, client)
                 tasks.append(self._fetch_with_progress("linux.do", linuxdo_scraper, since))
+
+            # onehack.st (Discourse)
+            if self.config.sources.onehack.enabled and self.config.sources.onehack.feeds:
+                onehack_scraper = OneHackScraper(self.config.sources.onehack, client)
+                tasks.append(self._fetch_with_progress("onehack.st", onehack_scraper, since))
 
             # Firecrawl
             firecrawl_cfg = self.config.sources.firecrawl
