@@ -98,3 +98,68 @@ def test_generate_webhook_item_uses_localized_discussion_label():
     )
 
     assert "[社区讨论](https://www.reddit.com/r/python/comments/abc123/test/)" in result
+
+
+def test_generate_summary_supports_vietnamese_labels():
+    summarizer = DailySummarizer()
+    item = _make_item(1)
+    item.metadata["detailed_summary_vi"] = "Đây là bản tóm tắt bằng tiếng Việt."
+    item.metadata["title_vi"] = "Tiêu đề tiếng Việt"
+
+    import asyncio
+
+    result = asyncio.run(
+        summarizer.generate_summary([item], "2026-04-25", total_fetched=1, language="vi")
+    )
+
+    assert "Horizon Hằng Ngày - 2026-04-25" in result
+    assert "Đây là bản tóm tắt bằng tiếng Việt." in result
+    assert "Tiêu đề tiếng Việt" in result
+    assert "**Nhãn**: `#AI`, `#News`" in result
+
+
+def test_generate_webhook_item_prefix_vietnamese():
+    summarizer = DailySummarizer()
+
+    result = summarizer.generate_webhook_item(
+        _make_item(1),
+        language="vi",
+        index=2,
+        total=5,
+    )
+
+    assert result.startswith("Mục 2/5")
+
+
+def test_build_enrichment_prompts_include_vietnamese():
+    from src.ai.prompts import (
+        build_enrichment_system_prompt,
+        build_enrichment_user_template,
+    )
+
+    system = build_enrichment_system_prompt(["en", "zh", "vi"])
+    user = build_enrichment_user_template(["en", "zh", "vi"])
+
+    # System prompt advertises all three languages and correct key naming.
+    assert "Vietnamese" in system
+    assert "title_vi" in system and "title_en" in system and "title_zh" in system
+    assert "community_discussion_vi" in system
+
+    # User template has the JSON schema key for every field in every language.
+    for field in ("title", "whats_new", "why_it_matters", "key_details", "background", "community_discussion"):
+        for lang in ("en", "zh", "vi"):
+            assert f'"{field}_{lang}"' in user
+
+    # Template still formattable with the standard placeholders the enricher passes in.
+    formatted = user.format(
+        title="T",
+        url="U",
+        summary="S",
+        score=9,
+        reason="R",
+        tags="t",
+        content="C",
+        comments_section="",
+        web_context="W",
+    )
+    assert '"title_vi"' in formatted

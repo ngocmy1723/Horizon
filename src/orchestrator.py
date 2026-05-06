@@ -532,7 +532,7 @@ class HorizonOrchestrator:
 
         self.console.print("📚 Enriching with background knowledge...")
         ai_client = create_ai_client(self.config.ai)
-        enricher = ContentEnricher(ai_client)
+        enricher = ContentEnricher(ai_client, languages=list(self.config.ai.languages))
         await enricher.enrich_batch(items)
         self.console.print(f"   Enriched {len(items)} items\n")
 

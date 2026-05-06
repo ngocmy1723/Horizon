@@ -87,7 +87,7 @@ def configure_ai() -> Optional[AIConfig]:
         console.print(f"   Add it to your .env file later: {api_key_env}=your_key_here\n")
 
     languages = Prompt.ask(
-        "Output languages (comma-separated)",
+        "Output languages (comma-separated; supported: en, zh, vi)",
         default="zh,en",
     )
     lang_list = [l.strip() for l in languages.split(",") if l.strip()]

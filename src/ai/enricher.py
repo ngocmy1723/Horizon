@@ -17,7 +17,7 @@ from ddgs import DDGS
 from .client import AIClient
 from .prompts import (
     CONCEPT_EXTRACTION_SYSTEM, CONCEPT_EXTRACTION_USER,
-    CONTENT_ENRICHMENT_SYSTEM, CONTENT_ENRICHMENT_USER,
+    build_enrichment_system_prompt, build_enrichment_user_template,
 )
 from .utils import parse_json_response
 from ..models import ContentItem
@@ -26,8 +26,11 @@ from ..models import ContentItem
 class ContentEnricher:
     """Enriches high-scoring content items with background knowledge."""
 
-    def __init__(self, ai_client: AIClient):
+    def __init__(self, ai_client: AIClient, languages: Optional[List[str]] = None):
         self.client = ai_client
+        self.languages: List[str] = list(languages) if languages else ["en", "zh"]
+        self._enrichment_system = build_enrichment_system_prompt(self.languages)
+        self._enrichment_user_template = build_enrichment_user_template(self.languages)
 
     async def enrich_batch(self, items: List[ContentItem]) -> None:
         """Enrich items in-place with background knowledge.
@@ -157,7 +160,7 @@ class ContentEnricher:
         available_urls = {r["url"]: r["title"] for r in all_results if r.get("url")}
 
         # Step 3: AI generates background grounded in search results
-        user_prompt = CONTENT_ENRICHMENT_USER.format(
+        user_prompt = self._enrichment_user_template.format(
             title=item.title,
             url=str(item.url),
             summary=item.ai_summary or item.title,
@@ -170,7 +173,7 @@ class ContentEnricher:
         )
 
         response = await self.client.complete(
-            system=CONTENT_ENRICHMENT_SYSTEM,
+            system=self._enrichment_system,
             user=user_prompt,
         )
 
@@ -183,7 +186,7 @@ class ContentEnricher:
             return
 
         # Combine structured sub-fields into per-language detailed_summary
-        for lang in ("en", "zh"):
+        for lang in self.languages:
             if result.get(f"title_{lang}"):
                 val = result[f"title_{lang}"]
                 item.metadata[f"title_{lang}"] = val.get("text") or str(val) if isinstance(val, dict) else str(val)
@@ -214,7 +217,9 @@ class ContentEnricher:
             if valid:
                 item.metadata["sources"] = valid
 
-        # Backward-compatible fallback fields (English as default)
-        item.metadata["detailed_summary"] = item.metadata.get("detailed_summary_en", "")
-        item.metadata["background"] = item.metadata.get("background_en", "")
-        item.metadata["community_discussion"] = item.metadata.get("community_discussion_en", "")
+        # Backward-compatible fallback fields: prefer English when available, else the
+        # first configured language so legacy consumers always get some content.
+        fallback_lang = "en" if "en" in self.languages else (self.languages[0] if self.languages else "en")
+        item.metadata["detailed_summary"] = item.metadata.get(f"detailed_summary_{fallback_lang}", "")
+        item.metadata["background"] = item.metadata.get(f"background_{fallback_lang}", "")
+        item.metadata["community_discussion"] = item.metadata.get(f"community_discussion_{fallback_lang}", "")

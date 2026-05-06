@@ -54,6 +54,47 @@ LABELS = {
             "3. 检查 AI 模型是否正常工作\n"
         ),
     },
+    "vi": {
+        "header": "Horizon Hằng Ngày",
+        "source": "Nguồn",
+        "background": "Bối cảnh",
+        "discussion": "Thảo luận cộng đồng",
+        "references": "Tham khảo",
+        "tags": "Nhãn",
+        "empty_body": (
+            "Hôm nay không có cập nhật quan trọng. Nguyên nhân có thể là:\n"
+            "- Các nguồn bạn theo dõi hôm nay khá yên ắng\n"
+            "- Ngưỡng điểm AI được đặt quá cao\n"
+            "- Danh sách nguồn thông tin cần được mở rộng\n\n"
+            "Bạn có thể:\n"
+            "1. Giảm `ai_score_threshold` trong config.json\n"
+            "2. Thêm các nguồn thông tin đa dạng hơn\n"
+            "3. Kiểm tra xem mô hình AI có hoạt động bình thường không\n"
+        ),
+    },
+}
+
+
+_OVERVIEW_HEADERS = {
+    "en": lambda total, kept: (
+        f"> Selected {kept} important items from {total} fetched items.\n\n"
+        "Details will be sent item by item so you can read only the topics you care about.\n\n"
+    ),
+    "zh": lambda total, kept: (
+        f"> 从 {total} 条内容中筛选出 {kept} 条重要资讯。\n\n"
+        "下面会按新闻逐条发送详情，你可以只看感兴趣的标题。\n\n"
+    ),
+    "vi": lambda total, kept: (
+        f"> Đã chọn {kept} tin quan trọng từ {total} mục thu thập được.\n\n"
+        "Chi tiết sẽ được gửi theo từng mục để bạn chỉ đọc những chủ đề mình quan tâm.\n\n"
+    ),
+}
+
+
+_ITEM_PREFIX = {
+    "en": lambda index, total: f"Item {index}/{total}\n\n",
+    "zh": lambda index, total: f"第 {index}/{total} 条\n\n",
+    "vi": lambda index, total: f"Mục {index}/{total}\n\n",
 }
 
 
@@ -121,18 +162,10 @@ class DailySummarizer:
         if not items:
             return self._generate_empty_summary(date, total_fetched, labels)
 
-        if language == "zh":
-            header = (
-                f"# {labels['header']} - {date}\n\n"
-                f"> 从 {total_fetched} 条内容中筛选出 {len(items)} 条重要资讯。\n\n"
-                "下面会按新闻逐条发送详情，你可以只看感兴趣的标题。\n\n"
-            )
-        else:
-            header = (
-                f"# {labels['header']} - {date}\n\n"
-                f"> Selected {len(items)} important items from {total_fetched} fetched items.\n\n"
-                "Details will be sent item by item so you can read only the topics you care about.\n\n"
-            )
+        header = (
+            f"# {labels['header']} - {date}\n\n"
+            + _OVERVIEW_HEADERS.get(language, _OVERVIEW_HEADERS["en"])(total_fetched, len(items))
+        )
 
         entries = []
         for i, item in enumerate(items, start=1):
@@ -153,7 +186,7 @@ class DailySummarizer:
     ) -> str:
         """Generate one item message for multi-message webhook delivery."""
         labels = LABELS.get(language, LABELS["en"])
-        prefix = f"第 {index}/{total} 条\n\n" if language == "zh" else f"Item {index}/{total}\n\n"
+        prefix = _ITEM_PREFIX.get(language, _ITEM_PREFIX["en"])(index, total)
         return prefix + self._format_item(item, labels, language, index).rstrip("-\n ")
 
     def _format_item(self, item: ContentItem, labels: dict, language: str, index: int) -> str:

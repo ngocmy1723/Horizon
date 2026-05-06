@@ -30,6 +30,68 @@ _ANCHOR_ID_RE = re.compile(r"<a\s+[^>]*id=[\"'][^\"']+[\"'][^>]*>\s*</a>", re.IG
 _HTML_TAG_RE = re.compile(r"<[^>]+>")
 
 
+# Per-language strings for webhook message titles and Feishu collapsible overview.
+# Unknown language codes fall back to English.
+_WEBHOOK_TITLES: dict[str, dict[str, str]] = {
+    "en": {
+        "daily": "Horizon {date} Daily",
+        "overview": "Horizon {date} Overview",
+        "collapsible": "Horizon {date} Collapsible Daily",
+    },
+    "zh": {
+        "daily": "Horizon {date} 日报",
+        "overview": "Horizon {date} 总览",
+        "collapsible": "Horizon {date} 折叠日报",
+    },
+    "vi": {
+        "daily": "Horizon {date} Bản tin ngày",
+        "overview": "Horizon {date} Tổng quan",
+        "collapsible": "Horizon {date} Bản tin thu gọn",
+    },
+}
+
+
+def _webhook_title(lang: str, kind: str, date: str) -> str:
+    """Return the localized webhook title for ``kind`` (daily/overview/collapsible)."""
+    table = _WEBHOOK_TITLES.get(lang, _WEBHOOK_TITLES["en"])
+    return table.get(kind, _WEBHOOK_TITLES["en"][kind]).format(date=date)
+
+
+def _build_collapsible_overview(*, lang: str, date: str, item_count: int, all_items_count: int) -> str:
+    """Localized overview text for Feishu collapsible cards."""
+    if lang == "zh":
+        header = f"# Horizon 每日速递 - {date}\n\n"
+        if item_count == 0:
+            return header + f"> 已分析 {all_items_count} 条内容，暂无达到重要性阈值的资讯。"
+        return (
+            header
+            + f"> 从 {all_items_count} 条内容中筛选出 {item_count} 条重要资讯。\n\n"
+            + "点击下方新闻面板即可在飞书内展开阅读全文。"
+        )
+
+    if lang == "vi":
+        header = f"# Horizon Hằng Ngày - {date}\n\n"
+        if item_count == 0:
+            return (
+                header
+                + f"> Đã phân tích {all_items_count} mục, nhưng không có mục nào đạt ngưỡng quan trọng."
+            )
+        return (
+            header
+            + f"> Đã chọn {item_count} tin quan trọng từ {all_items_count} mục thu thập được.\n\n"
+            + "Nhấn vào các bảng tin bên dưới để mở rộng và đọc nội dung đầy đủ trong Feishu/Lark."
+        )
+
+    header = f"# Horizon Daily - {date}\n\n"
+    if item_count == 0:
+        return header + f"> Analyzed {all_items_count} items, but none met the importance threshold."
+    return (
+        header
+        + f"> Selected {item_count} important items from {all_items_count} fetched items.\n\n"
+        + "Expand the panels below to read the full briefing inside Feishu/Lark."
+    )
+
+
 def _truncate(value: str, limit: int, split: str) -> str:
     """Truncate a string to at most *limit* characters by splitting on *split*.
 
@@ -295,28 +357,11 @@ class WebhookNotifier:
         lang: str,
     ) -> str:
         """Build a non-redundant overview for a card that already lists item panels."""
-        if lang == "zh":
-            if item_count == 0:
-                return (
-                    f"# Horizon 每日速递 - {date}\n\n"
-                    f"> 已分析 {all_items_count} 条内容，暂无达到重要性阈值的资讯。"
-                )
-            return (
-                f"# Horizon 每日速递 - {date}\n\n"
-                f"> 从 {all_items_count} 条内容中筛选出 {item_count} 条重要资讯。\n\n"
-                "点击下方新闻面板即可在飞书内展开阅读全文。"
-            )
-
-        if item_count == 0:
-            return (
-                f"# Horizon Daily - {date}\n\n"
-                f"> Analyzed {all_items_count} items, but none met the importance threshold."
-            )
-
-        return (
-            f"# Horizon Daily - {date}\n\n"
-            f"> Selected {item_count} important items from {all_items_count} fetched items.\n\n"
-            "Expand the panels below to read the full briefing inside Feishu/Lark."
+        return _build_collapsible_overview(
+            lang=lang,
+            date=date,
+            item_count=item_count,
+            all_items_count=all_items_count,
         )
 
     def _build_feishu_collapsible_body(
@@ -362,10 +407,7 @@ class WebhookNotifier:
                 "header": {
                     "title": {
                         "tag": "plain_text",
-                        "content": (
-                            f"Horizon {date} 折叠日报" if lang == "zh"
-                            else f"Horizon {date} Collapsible Daily"
-                        ),
+                        "content": _webhook_title(lang, "collapsible", date),
                     },
                     "template": "blue",
                 },
@@ -410,10 +452,7 @@ class WebhookNotifier:
         if self._can_use_feishu_collapsible():
             return [{
                 **base_vars,
-                "message_title": (
-                    f"Horizon {date} 折叠日报" if lang == "zh"
-                    else f"Horizon {date} Collapsible Daily"
-                ),
+                "message_title": _webhook_title(lang, "collapsible", date),
                 "message_kind": "collapsible",
                 "summary": self._build_feishu_collapsible_overview(
                     item_count=len(important_items),
@@ -438,10 +477,7 @@ class WebhookNotifier:
             )
             overview_message = {
                 **base_vars,
-                "message_title": (
-                    f"Horizon {date} 总览" if lang == "zh"
-                    else f"Horizon {date} Overview"
-                ),
+                "message_title": _webhook_title(lang, "overview", date),
                 "message_kind": "overview",
                 "summary": overview,
             }
@@ -470,10 +506,7 @@ class WebhookNotifier:
 
         return [{
             **base_vars,
-            "message_title": (
-                f"Horizon {date} 日报" if lang == "zh"
-                else f"Horizon {date} Daily"
-            ),
+            "message_title": _webhook_title(lang, "daily", date),
             "message_kind": "summary",
             "summary": summary,
         }]
