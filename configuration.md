@@ -83,6 +83,22 @@ If your model has a strict per-minute request cap, you can slow the scorer down 
 - `4.5` is a reasonable starting point for free-tier models capped around 15 requests per minute.
 - Set it back to `0` if you have enough throughput headroom and want maximum speed.
 
+### Output languages
+
+Configure which languages AI-generated briefings are produced in. Horizon writes a separate daily summary (and GitHub Pages post) per language.
+
+```json
+{
+  "ai": {
+    "languages": ["en", "zh", "vi"]
+  }
+}
+```
+
+- Supported codes: `en` (English), `zh` (Simplified Chinese), `vi` (Vietnamese).
+- The enricher prompt is built dynamically from this list, so every configured language is generated in one AI call. Adding more languages increases token usage proportionally.
+- Unknown language codes fall back to English labels in the rendered Markdown but will still be requested from the model using the language code as-is, so stick to the supported codes above.
+
 **Custom Base URL** (for proxies):
 
 ```json
@@ -304,7 +320,7 @@ Webhook notification is optional and disabled unless `webhook.enabled` is `true`
 - `platform`: Optional webhook platform hint. Use `generic` by default, or `feishu` / `lark` to enable platform-specific card rendering.
 - `layout`: Controls the message layout. Use `markdown` for templated Markdown delivery, or `collapsible` with `platform: "feishu"` / `"lark"` for a single Feishu Card JSON 2.0 message with each item in a collapsed panel.
 - `fallback_layout`: Reserved fallback layout for unsupported platform/layout combinations. The current safe fallback is `markdown`.
-- `languages`: Optional webhook-only language filter. Use `["zh"]` or `["en"]` to send only selected languages; use `null` or omit it to send all configured `ai.languages`.
+- `languages`: Optional webhook-only language filter. Use `["zh"]`, `["en"]`, or `["vi"]` (or any combination) to send only selected languages; use `null` or omit it to send all configured `ai.languages`.
 - `request_body`: Optional request body. If empty, Horizon sends a `GET` request. If provided, Horizon sends a `POST` request.
 - `headers`: Optional custom headers, one `Key: Value` pair per line.
 
