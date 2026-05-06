@@ -228,3 +228,23 @@ Each configured feed is fetched concurrently. Topics are filtered by `created_at
 **Rate limiting**: Detects HTTP 429 responses, reads the `Retry-After` header, waits, and retries once. A browser-like `User-Agent` and `Referer` are sent because Discourse blocks requests with the default `httpx` UA.
 
 **Extracted data**: title, topic URL, OP author, created time, likes, views, reply count, posts count, category id, tags, OP body, and top replies.
+
+## onehack.st
+
+**File**: `src/scrapers/onehack.py`
+
+Thin subclass of the linux.do scraper since [onehack.st](https://onehack.st/) also runs Discourse. Same fetch/parse logic, same feed config shape (reuses `LinuxDoFeedConfig`), same Cloudflare TLS-fingerprint workaround via `primp`.
+
+**Config** (`sources.onehack`): identical to `sources.linuxdo`, with `base_url` defaulted to `https://onehack.st`. See the linux.do section above for `feeds`, `fetch_comments`, `min_likes`, etc.
+
+```json
+"onehack": {
+  "enabled": true,
+  "base_url": "https://onehack.st",
+  "fetch_comments": 5,
+  "feeds": [
+    { "name": "latest", "feed": "latest", "fetch_limit": 25 },
+    { "name": "top-daily", "feed": "top", "period": "daily", "min_likes": 5 }
+  ]
+}
+```
