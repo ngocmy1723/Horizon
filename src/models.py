@@ -16,6 +16,7 @@ class SourceType(str, Enum):
     TWITTER = "twitter"
     LINUXDO = "linuxdo"
     FIRECRAWL = "firecrawl"
+    INDIEHACKERS = "indiehackers"
 
 
 class ContentItem(BaseModel):
@@ -189,6 +190,20 @@ class FirecrawlConfig(BaseModel):
     sources: List[FirecrawlSourceConfig] = Field(default_factory=list)
 
 
+class IndieHackersConfig(BaseModel):
+    """Indie Hackers source configuration.
+
+    Scrapes the SSR-rendered homepage at https://www.indiehackers.com/, which
+    embeds ~48 latest/featured posts. Optionally fetches each post detail
+    page for the full body and published date. No API key required.
+    """
+    enabled: bool = False
+    base_url: str = "https://www.indiehackers.com"
+    fetch_limit: int = 30
+    min_upvotes: int = 5
+    fetch_post_body: bool = True
+
+
 class SourcesConfig(BaseModel):
     """All sources configuration."""
 
@@ -200,6 +215,7 @@ class SourcesConfig(BaseModel):
     twitter: Optional[TwitterConfig] = None
     linuxdo: LinuxDoConfig = Field(default_factory=LinuxDoConfig)
     firecrawl: FirecrawlConfig = Field(default_factory=FirecrawlConfig)
+    indiehackers: IndieHackersConfig = Field(default_factory=IndieHackersConfig)
 
 
 class WebhookConfig(BaseModel):

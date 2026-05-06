@@ -505,6 +505,13 @@
           "poll_timeout_sec": 180.0
         }
       ]
+    },
+    "indiehackers": {
+      "enabled": true,
+      "base_url": "https://www.indiehackers.com",
+      "fetch_limit": 20,
+      "min_upvotes": 10,
+      "fetch_post_body": true
     }
   },
   "filtering": {

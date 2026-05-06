@@ -20,6 +20,7 @@ from .scrapers.telegram import TelegramScraper
 from .scrapers.twitter import TwitterScraper
 from .scrapers.linuxdo import LinuxDoScraper
 from .scrapers.firecrawl import FirecrawlScraper
+from .scrapers.indiehackers import IndieHackersScraper
 from .ai.client import create_ai_client
 from .ai.analyzer import ContentAnalyzer
 from .ai.summarizer import DailySummarizer
@@ -274,6 +275,11 @@ class HorizonOrchestrator:
             if firecrawl_cfg.enabled and firecrawl_cfg.sources:
                 firecrawl_scraper = FirecrawlScraper(firecrawl_cfg, client)
                 tasks.append(self._fetch_with_progress("Firecrawl", firecrawl_scraper, since))
+
+            # Indie Hackers
+            if self.config.sources.indiehackers.enabled:
+                ih_scraper = IndieHackersScraper(self.config.sources.indiehackers, client)
+                tasks.append(self._fetch_with_progress("Indie Hackers", ih_scraper, since))
 
             # Fetch all concurrently
             results = await asyncio.gather(*tasks, return_exceptions=True)

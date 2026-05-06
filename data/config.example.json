@@ -136,6 +136,13 @@
           "category": "ai-labs"
         }
       ]
+    },
+    "indiehackers": {
+      "enabled": false,
+      "base_url": "https://www.indiehackers.com",
+      "fetch_limit": 30,
+      "min_upvotes": 5,
+      "fetch_post_body": true
     }
   },
   "filtering": {
