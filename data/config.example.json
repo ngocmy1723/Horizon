@@ -173,6 +173,24 @@
           "min_likes": 5
         }
       ]
+    },
+    "blackhatworld": {
+      "enabled": false,
+      "base_url": "https://www.blackhatworld.com",
+      "impersonate": "chrome120",
+      "request_delay_sec": 1.5,
+      "forums": [
+        {
+          "slug": "black-hat-seo",
+          "id": 9,
+          "name": "Black Hat SEO",
+          "category": "seo",
+          "fetch_limit": 30,
+          "min_replies": 5,
+          "fetch_first_post": true,
+          "enabled": true
+        }
+      ]
     }
   },
   "filtering": {

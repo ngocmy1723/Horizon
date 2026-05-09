@@ -23,6 +23,7 @@ from .scrapers.linuxdo import LinuxDoScraper
 from .scrapers.onehack import OneHackScraper
 from .scrapers.firecrawl import FirecrawlScraper
 from .scrapers.indiehackers import IndieHackersScraper
+from .scrapers.blackhatworld import BlackHatWorldScraper
 from .ai.client import create_ai_client
 from .ai.analyzer import ContentAnalyzer
 from .ai.summarizer import DailySummarizer
@@ -292,6 +293,12 @@ class HorizonOrchestrator:
             if self.config.sources.indiehackers.enabled:
                 ih_scraper = IndieHackersScraper(self.config.sources.indiehackers, client)
                 tasks.append(self._fetch_with_progress("Indie Hackers", ih_scraper, since))
+
+            # BlackHatWorld (XenForo)
+            bhw_cfg = self.config.sources.blackhatworld
+            if bhw_cfg.enabled and bhw_cfg.forums:
+                bhw_scraper = BlackHatWorldScraper(bhw_cfg, client)
+                tasks.append(self._fetch_with_progress("BlackHatWorld", bhw_scraper, since))
 
             # Fetch all concurrently
             results = await asyncio.gather(*tasks, return_exceptions=True)

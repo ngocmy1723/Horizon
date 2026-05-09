@@ -19,6 +19,7 @@ class SourceType(str, Enum):
     FIRECRAWL = "firecrawl"
     INDIEHACKERS = "indiehackers"
     ONEHACK = "onehack"
+    BLACKHATWORLD = "blackhatworld"
 
 
 class ContentItem(BaseModel):
@@ -229,6 +230,31 @@ class IndieHackersConfig(BaseModel):
     fetch_post_body: bool = True
 
 
+class BlackHatWorldForumConfig(BaseModel):
+    """Configuration for monitoring a single BlackHatWorld (XenForo) forum."""
+    slug: str
+    id: int
+    name: Optional[str] = None
+    category: Optional[str] = None
+    enabled: bool = True
+    fetch_limit: int = 30
+    fetch_first_post: bool = True
+    min_replies: int = 0
+
+
+class BlackHatWorldConfig(BaseModel):
+    """BlackHatWorld (XenForo) source configuration.
+
+    Cloudflare-fronted; uses ``curl_cffi`` to impersonate a real Chrome TLS
+    handshake when available, falling back to httpx with realistic headers.
+    """
+    enabled: bool = False
+    base_url: str = "https://www.blackhatworld.com"
+    impersonate: str = "chrome120"
+    request_delay_sec: float = 1.5
+    forums: List[BlackHatWorldForumConfig] = Field(default_factory=list)
+
+
 class SourcesConfig(BaseModel):
     """All sources configuration."""
 
@@ -243,6 +269,7 @@ class SourcesConfig(BaseModel):
     firecrawl: FirecrawlConfig = Field(default_factory=FirecrawlConfig)
     indiehackers: IndieHackersConfig = Field(default_factory=IndieHackersConfig)
     onehack: OneHackConfig = Field(default_factory=lambda: OneHackConfig(enabled=False))
+    blackhatworld: BlackHatWorldConfig = Field(default_factory=BlackHatWorldConfig)
 
 
 class WebhookConfig(BaseModel):
