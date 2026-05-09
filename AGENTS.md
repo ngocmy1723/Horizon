@@ -18,7 +18,7 @@ src/
   models.py            # Pydantic data models
   search.py            # Web search (ddgs) for enrichment
   ai/
-    client.py          # Multi-provider LLM client (Claude/OpenAI/Gemini/DeepSeek/Doubao/MiniMax/...)
+    client.py          # Multi-provider LLM client (Claude/OpenAI/Azure OpenAI/Gemini/DeepSeek/Doubao/MiniMax/...)
     analyzer.py        # Scoring + dedup
     enricher.py        # Background context generation
     summarizer.py      # Final markdown briefing generation
@@ -82,7 +82,7 @@ No DeepSeek/Doubao/MiniMax SDK — those go through the OpenAI-compatible path i
 
 ## Tests
 
-Pytest config in `pyproject.toml` (`minversion=8.0`, `-q`, `testpaths=["tests"]`). Existing tests cover: analyzer, summarizer, MCP (adapter/errors/run_store/service smoke), MiniMax client, Reddit, Twitter, Firecrawl, IndieHackers, OneHack, Gitee scrapers, webhook service. Add tests next to these when modifying corresponding modules.
+Pytest config in `pyproject.toml` (`minversion=8.0`, `-q`, `testpaths=["tests"]`). Existing tests cover: analyzer, summarizer, MCP (adapter/errors/run_store/service smoke), Azure OpenAI client, MiniMax client, Reddit, Twitter, Firecrawl, IndieHackers, OneHack, Gitee scrapers, webhook service. Add tests next to these when modifying corresponding modules.
 
 ## Conventions
 
