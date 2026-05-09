@@ -10,8 +10,8 @@ from typing import Any, List, Optional
 
 import httpx
 
-from .base import BaseScraper
 from ..models import ContentItem, LinuxDoConfig, LinuxDoFeedConfig, SourceType
+from .base import BaseScraper
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +89,9 @@ class LinuxDoScraper(BaseScraper):
                 items.extend(r)
         return items
 
-    async def _fetch_feed(self, cfg: LinuxDoFeedConfig, since: datetime) -> List[ContentItem]:
+    async def _fetch_feed(
+        self, cfg: LinuxDoFeedConfig, since: datetime
+    ) -> List[ContentItem]:
         url = self._feed_url(cfg)
         if not url:
             logger.warning("%s feed %s has no resolvable URL", self.LOG_NAME, cfg.name)
@@ -104,8 +106,12 @@ class LinuxDoScraper(BaseScraper):
 
         valid: list[dict] = []
         for t in topics:
-            created = self._parse_dt(t.get("created_at"))
-            if not created or created < since:
+            updated = (
+                self._parse_dt(t.get("bumped_at"))
+                or self._parse_dt(t.get("last_posted_at"))
+                or self._parse_dt(t.get("created_at"))
+            )
+            if not updated or updated < since:
                 continue
             if t.get("like_count", 0) < cfg.min_likes:
                 continue
@@ -187,11 +193,15 @@ class LinuxDoScraper(BaseScraper):
                 # primp raises on 429 instead of returning a response.
                 msg = str(e)
                 if RATE_LIMIT_RE.search(msg) and attempt < MAX_RETRIES_429:
-                    backoff = min(60, 5 * (2 ** attempt))
+                    backoff = min(60, 5 * (2**attempt))
                     self._set_cooldown(backoff)
                     logger.warning(
                         "%s 429 on %s (attempt %d/%d), cooling down %ds",
-                        self.LOG_NAME, url, attempt + 1, MAX_RETRIES_429, backoff,
+                        self.LOG_NAME,
+                        url,
+                        attempt + 1,
+                        MAX_RETRIES_429,
+                        backoff,
                     )
                     continue
                 logger.warning("%s request failed for %s: %s", self.LOG_NAME, url, e)
@@ -200,13 +210,20 @@ class LinuxDoScraper(BaseScraper):
             status = getattr(response, "status_code", 0)
             if status == 429:
                 if attempt >= MAX_RETRIES_429:
-                    logger.warning("%s giving up on %s after %d 429s", self.LOG_NAME, url, attempt)
+                    logger.warning(
+                        "%s giving up on %s after %d 429s", self.LOG_NAME, url, attempt
+                    )
                     return None
-                retry_after = self._retry_after(response, default=min(60, 5 * (2 ** attempt)))
+                retry_after = self._retry_after(
+                    response, default=min(60, 5 * (2**attempt))
+                )
                 self._set_cooldown(retry_after)
                 logger.warning(
                     "%s rate limited (attempt %d/%d), cooling down %ds",
-                    self.LOG_NAME, attempt + 1, MAX_RETRIES_429, retry_after,
+                    self.LOG_NAME,
+                    attempt + 1,
+                    MAX_RETRIES_429,
+                    retry_after,
                 )
                 continue
             if status >= 400:
@@ -229,7 +246,11 @@ class LinuxDoScraper(BaseScraper):
 
         title = topic.get("fancy_title") or topic.get("title") or ""
         slug = topic.get("slug") or ""
-        url = f"{self.base_url}/t/{slug}/{topic_id}" if slug else f"{self.base_url}/t/{topic_id}"
+        url = (
+            f"{self.base_url}/t/{slug}/{topic_id}"
+            if slug
+            else f"{self.base_url}/t/{topic_id}"
+        )
         created = self._parse_dt(topic.get("created_at")) or datetime.now(timezone.utc)
 
         posts = []
