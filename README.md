@@ -334,6 +334,7 @@ Great candidates: niche RSS discoveries, active subreddit trends, notable GitHub
 
 - Special thanks to [LINUX.DO](https://linux.do/) for providing a promotion platform.
 - Special thanks to [HelloGitHub](https://hellogithub.com/) for valuable guidance and suggestions.
+- Special thanks to [AIGC Link](https://xhslink.com/m/80ngts127cA) for the promotions on XiaoHongShu.
 
 ## License
 

@@ -322,6 +322,7 @@ Horizon 已经支持完整的日报流程：多源抓取、AI 打分、去重、
 
 - 特别感谢 [LINUX.DO](https://linux.do/) 提供的宣传平台。
 - 特别感谢 [HelloGitHub](https://hellogithub.com/) 提供的指导意见。
+- 特别感谢 [AIGC Link](https://xhslink.com/m/80ngts127cA) 提供的小红书和微信公众号宣传。
 
 ## 许可证
 

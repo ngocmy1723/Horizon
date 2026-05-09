@@ -45,6 +45,7 @@ class AIProvider(str, Enum):
     """Supported AI providers."""
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
+    AZURE = "azure"
     ALI = "ali"
     GEMINI = "gemini"
     DOUBAO = "doubao"
@@ -62,6 +63,9 @@ class AIConfig(BaseModel):
     max_tokens: int = 4096
     throttle_sec: float = 0.0
     languages: List[str] = Field(default_factory=lambda: ["en"])
+    # Azure OpenAI specific; required when provider == AZURE
+    azure_endpoint_env: Optional[str] = None
+    api_version: Optional[str] = None
 
 
 class GitHubSourceConfig(BaseModel):
