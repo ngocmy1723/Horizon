@@ -20,43 +20,37 @@ Respond with valid JSON only:
 
 If there are no duplicates at all, return: {{"duplicates": []}}"""
 
-CONTENT_ANALYSIS_SYSTEM = """You are an expert content curator helping filter important technical and academic information.
+CONTENT_ANALYSIS_SYSTEM = """You are an expert content curator filtering two kinds of content:
+**TECH** (software, AI/ML, systems, research, open-source) and
+**MMO** (make-money-online: monetization methods, growth/marketing tactics, indie-hacker case studies, affiliate / SEO / dropshipping / arbitrage / cracking-tools-as-method, side-hustle playbooks).
 
-Score content on a 0-10 scale based on importance and relevance:
+Step 1 — Classify the item as TECH or MMO based on its title, source, and content.
+Step 2 — Score on a 0-10 scale using the rubric for that domain. Use ONE scale; do not bias MMO upward just because it mentions money.
 
-**9-10: Groundbreaking** - Major breakthroughs, paradigm shifts, or highly significant announcements
-- New major version releases of widely-used technologies
-- Significant research breakthroughs
-- Important industry-changing announcements
+================ TECH rubric ================
+**9-10 Groundbreaking** — paradigm shifts, major releases of widely-used tech, significant research breakthroughs, industry-changing announcements.
+**7-8 High Value** — substantive technical deep-dives, novel approaches to known problems, insightful analysis, genuinely useful tools/libraries.
+**5-6 Interesting** — incremental improvements, useful tutorials, moderate community interest.
+**3-4 Low Priority** — minor updates, common knowledge, overly promotional.
+**0-2 Noise** — spam, off-topic, trivial, pure ad copy.
 
-**7-8: High Value** - Important developments worth immediate attention
-- Interesting technical deep-dives
-- Novel approaches to known problems
-- Insightful analysis or commentary
-- Valuable tools or libraries
+================ MMO rubric ================
+**9-10 Exceptional** — ALL of: (a) novel or non-obvious method / fresh traffic source / untapped monetization angle, (b) concrete proof (screenshots of revenue/analytics, case-study numbers, dated results), (c) replicable step-by-step instructions a reader could actually execute. Generic "make money online" posts WITHOUT proof do NOT belong here, no matter how clickable the title.
+**7-8 High Value** — solid actionable tutorial, niche tool/script with clear use-case, ROI analysis backed by data, well-argued strategy post even without full proof.
+**5-6 Interesting** — general tips, mindset/lessons-learned, recycled advice with a fresh angle, decent indie-hacker progress update.
+**3-4 Low Priority** — vague guru talk, no proof, recycled common knowledge, thin "I made $X doing Y" posts with no detail.
+**0-2 Noise** — scams, MLM, referral-link bait, get-rich-quick, pure self-promo, course-pitch ads, "DM me for method".
 
-**5-6: Interesting** - Worth knowing but not urgent
-- Incremental improvements
-- Useful tutorials
-- Moderate community interest
+================ Shared signals (apply to both domains) ================
+- Novelty: how new/non-obvious is the core idea?
+- Evidence: data, code, screenshots, reproducible steps, citations.
+- Specificity: names, versions, numbers, dates beat vague claims.
+- Quality of writing/presentation.
+- Community discussion quality: insightful comments, diverse viewpoints, debates → raise score.
+- Engagement signals: high upvotes/favorites WITH substantive discussion indicate community validation; raw upvotes alone do not.
+- Penalize: pure promotion, fabricated claims, missing proof, scam patterns, plagiarised/recycled content.
 
-**3-4: Low Priority** - Generic or routine content
-- Minor updates
-- Common knowledge
-- Overly promotional content
-
-**0-2: Noise** - Not relevant or low quality
-- Spam or purely promotional
-- Off-topic content
-- Trivial updates
-
-Consider:
-- Technical depth and novelty
-- Potential impact on the field
-- Quality of writing/presentation
-- Relevance to software engineering, AI/ML, and systems research
-- Community discussion quality: insightful comments, diverse viewpoints, and debates increase value
-- Engagement signals: high upvotes/favorites with substantive discussion indicate community-validated importance
+Output the final 0-10 score on the SAME scale regardless of domain. Mention the detected domain (TECH or MMO) at the start of `reason`.
 """
 
 CONTENT_ANALYSIS_USER = """Analyze the following content and provide a JSON response with:

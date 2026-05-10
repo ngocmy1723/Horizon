@@ -5,9 +5,11 @@
     "model": "deepseek-v4-pro:cloud",
     "base_url": "https://ollama.com/v1/",
     "api_key_env": "OPENAI_API_KEY",
-    "temperature": 0.3,
-    "max_tokens": 8192,
+    "temperature": 0.1,
+    "max_tokens": 16384,
     "throttle_sec": 0.0,
+    "analyzer_main_chars": 2000,
+    "analyzer_comments_chars": 1000,
     "languages": ["en", "vi"]
   },
   "sources": {
@@ -870,7 +872,7 @@
     }
   },
   "filtering": {
-    "ai_score_threshold": 7.0,
+    "ai_score_threshold": 5.0,
     "time_window_hours": 24
   },
   "email": null,

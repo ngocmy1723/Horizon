@@ -6,7 +6,9 @@
     "api_key_env": "OPENAI_API_KEY",
     "temperature": 0.3,
     "max_tokens": 4096,
-    "throttle_sec": 0
+    "throttle_sec": 0,
+    "analyzer_main_chars": 2000,
+    "analyzer_comments_chars": 1000
   },
   "email": {
     "enabled": false,

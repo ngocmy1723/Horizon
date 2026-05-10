@@ -14,6 +14,15 @@ from ..models import ContentItem
 
 DEFAULT_THROTTLE_SEC = 0.0
 
+# Char budgets for the analyzer prompt. Main content is the primary signal
+# (article body / OP post); comments are supplementary. Keep main >= comments
+# so scoring is not biased by community sentiment over the actual content.
+# These are fallbacks; runtime values come from AIConfig.analyzer_main_chars /
+# analyzer_comments_chars.
+_MAIN_CONTENT_CHAR_LIMIT = 2000
+_COMMENTS_CHAR_LIMIT = 1000
+_COMMENTS_MARKER = "--- Top Comments ---"
+
 
 class ContentAnalyzer:
     """Analyzes content items using AI to determine importance."""
@@ -34,6 +43,21 @@ class ContentAnalyzer:
         config = getattr(self.client, "config", None)
         throttle_sec = getattr(config, "throttle_sec", DEFAULT_THROTTLE_SEC)
         return max(throttle_sec, 0.0)
+
+    def _get_char_budgets(self) -> tuple[int, int]:
+        """Return (main, comments) char budgets from config with module-level fallback.
+
+        Negative or zero values fall back to the module defaults so a misconfig
+        cannot silently disable a section.
+        """
+        config = getattr(self.client, "config", None)
+        main = getattr(config, "analyzer_main_chars", _MAIN_CONTENT_CHAR_LIMIT)
+        comments = getattr(config, "analyzer_comments_chars", _COMMENTS_CHAR_LIMIT)
+        if not isinstance(main, int) or main <= 0:
+            main = _MAIN_CONTENT_CHAR_LIMIT
+        if not isinstance(comments, int) or comments <= 0:
+            comments = _COMMENTS_CHAR_LIMIT
+        return main, comments
 
     async def analyze_batch(self, items: List[ContentItem]) -> List[ContentItem]:
         throttle_sec = self._get_throttle_sec()
@@ -74,22 +98,25 @@ class ContentAnalyzer:
         Args:
             item: Content item to analyze (modified in-place)
         """
-        # Prepare content section
+        main_limit, comments_limit = self._get_char_budgets()
+
+        # Prepare content section + split off comments once if present.
         content_section = ""
+        comments_part = ""
         if item.content:
-            # Split off comments if present
-            content_text = item.content
-            if "--- Top Comments ---" in content_text:
-                main, comments_part = content_text.split("--- Top Comments ---", 1)
-                content_section = f"Content: {main.strip()[:800]}"
+            if _COMMENTS_MARKER in item.content:
+                main, comments_part = item.content.split(_COMMENTS_MARKER, 1)
             else:
-                content_section = f"Content: {content_text[:1000]}"
+                main = item.content
+            main_text = main.strip()[:main_limit]
+            if main_text:
+                content_section = f"Content: {main_text}"
 
         # Prepare discussion section (comments, engagement)
         discussion_parts = []
-        if item.content and "--- Top Comments ---" in item.content:
-            comments_part = item.content.split("--- Top Comments ---", 1)[1]
-            discussion_parts.append(f"Community Comments:\n{comments_part[:1500]}")
+        comments_text = comments_part.strip()[:comments_limit]
+        if comments_text:
+            discussion_parts.append(f"Community Comments:\n{comments_text}")
 
         meta = item.metadata
         engagement_items = []

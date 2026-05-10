@@ -100,6 +100,24 @@ If your model has a strict per-minute request cap, you can slow the scorer down 
 - `4.5` is a reasonable starting point for free-tier models capped around 15 requests per minute.
 - Set it back to `0` if you have enough throughput headroom and want maximum speed.
 
+### Analyzer prompt budgets
+
+Control how many characters of each item are sent to the scoring model. Main content (article body / OP post) is the primary signal; comments are supplementary. Keep main >= comments so scoring is not biased toward community sentiment over the actual content.
+
+```json
+{
+  "ai": {
+    "analyzer_main_chars": 2000,
+    "analyzer_comments_chars": 1000
+  }
+}
+```
+
+- `analyzer_main_chars`: Char cap for the main body. Default `2000`.
+- `analyzer_comments_chars`: Char cap for the community comments block. Default `1000`.
+- Bump both for MMO-heavy or long-form sources (BlackHatWorld, Reddit text posts) where method/proof can sit deep in the body. Cost scales roughly linearly with these values.
+- Non-positive values fall back to the defaults.
+
 ### Output languages
 
 Configure which languages AI-generated briefings are produced in. Horizon writes a separate daily summary (and GitHub Pages post) per language.

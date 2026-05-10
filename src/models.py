@@ -63,6 +63,11 @@ class AIConfig(BaseModel):
     temperature: float = 0.3
     max_tokens: int = 4096
     throttle_sec: float = 0.0
+    # Char budgets for the analyzer prompt. Main is the primary signal
+    # (article body / OP post); comments are supplementary. Keep main >= comments
+    # so scoring is not biased by community sentiment over the actual content.
+    analyzer_main_chars: int = 2000
+    analyzer_comments_chars: int = 1000
     languages: List[str] = Field(default_factory=lambda: ["en"])
     # Azure OpenAI specific; required when provider == AZURE
     azure_endpoint_env: Optional[str] = None
